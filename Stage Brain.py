@@ -23,3 +23,5 @@ rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
 camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
 camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
 camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
+# Create Lights
+IM.CreateLight("BackTopRight",[7,7,15],'POINT')

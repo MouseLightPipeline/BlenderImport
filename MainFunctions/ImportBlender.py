@@ -13,6 +13,7 @@ def HortaObj(fileLoc):
 	obj.scale = (0.001, 0.001, 0.001)
 	obj.rotation_euler = (radians(-90), 0, 0 )
 	obj.location = ( -5.692, -6.56, 3.972 )
+	obj.data.use_auto_smooth = 0
 	return obj
 
 def CreateCam(name,pos,rot,scale):
@@ -24,3 +25,23 @@ def CreateCam(name,pos,rot,scale):
 	cam.data.type = 'ORTHO'
 	cam.data.ortho_scale = scale
 	return cam
+
+def CreateLight(nameLight,pos,typeLight):
+	scene = bpy.context.scene
+
+	# Create new lamp datablock
+	lamp_data = bpy.data.lamps.new(name=name, type=LightType)
+
+	# Create new object with our lamp datablock
+	lamp_object = bpy.data.objects.new(name=name, object_data=lamp_data)
+
+	# Link lamp object to the scene so it'll appear in this scene
+	scene.objects.link(lamp_object)
+
+	# Place lamp to a specified location
+	lamp_object.location = pos
+
+	# And finally select it make active
+	lamp_object.select = True
+	scene.objects.active = lamp_object
+	return lamp_object
