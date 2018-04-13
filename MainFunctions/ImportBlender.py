@@ -10,9 +10,15 @@ def HortaObj(fileLoc):
 	obj= bpy.context.selected_objects[0]
 	obj = bpy.data.objects[obj.name]
 	#scale
+	#bpy.ops.transform.resize(value=(0.001,0.001,0.001))
 	obj.scale = (0.001, 0.001, 0.001)
 	obj.rotation_euler = (radians(-90), 0, 0 )
 	obj.location = ( -5.692, -6.56, 3.972 )
+	bpy.ops.object.select_all(action='DESELECT')
+	obj.select = True
+	bpy.context.scene.objects.active = obj
+	bpy.ops.object.transform_apply(location = True, scale = True, rotation = True)
+	bpy.ops.object.select_all(action='DESELECT')
 	obj.data.use_auto_smooth = 0
 	return obj
 
@@ -30,18 +36,15 @@ def CreateLight(nameLight,pos,typeLight):
 	scene = bpy.context.scene
 
 	# Create new lamp datablock
-	lamp_data = bpy.data.lamps.new(name=name, type=LightType)
+	lamp_data = bpy.data.lamps.new(name=nameLight, type=typeLight)
 
 	# Create new object with our lamp datablock
-	lamp_object = bpy.data.objects.new(name=name, object_data=lamp_data)
+	lamp_object = bpy.data.objects.new(name=nameLight, object_data=lamp_data)
 
 	# Link lamp object to the scene so it'll appear in this scene
 	scene.objects.link(lamp_object)
 
 	# Place lamp to a specified location
 	lamp_object.location = pos
-
-	# And finally select it make active
-	lamp_object.select = True
-	scene.objects.active = lamp_object
 	return lamp_object
+
