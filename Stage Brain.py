@@ -20,9 +20,4 @@ bpy.context.scene.render.engine = 'CYCLES'
 #rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
 
 # Create Coronal Camera.
-bpy.ops.object.camera_add(view_align=False,
-                          location=[0, -15, 0],
-                          rotation=[radians(90), 0, 0])
-cameraC = bpy.context.object
-cameraC.name = "Coronal Camera"
-cameraC.data.type = 'ORTHO'
+camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],10)

@@ -14,3 +14,13 @@ def HortaObj(fileLoc):
 	obj.rotation_euler = (radians(-90), 0, 0 )
 	obj.location = ( -5.692, -7.44, 3.972 )
 	return obj
+
+def CreateCam(name,pos,rot,scale):
+	bpy.ops.object.camera_add(view_align=False,
+                          location=pos,
+                          rotation=rot)
+	cam = bpy.context.object
+	cam.name = name
+	cam.data.type = 'ORTHO'
+	cam.data.ortho_scale = scale
+	return cam
