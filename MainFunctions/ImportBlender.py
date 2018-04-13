@@ -12,7 +12,7 @@ def HortaObj(fileLoc):
 	#scale
 	obj.scale = (0.001, 0.001, 0.001)
 	obj.rotation_euler = (radians(-90), 0, 0 )
-	obj.location = ( -5.692, -7.44, 3.972 )
+	obj.location = ( -5.692, -6.56, 3.972 )
 	return obj
 
 def CreateCam(name,pos,rot,scale):

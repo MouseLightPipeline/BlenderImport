@@ -17,7 +17,9 @@ bpy.context.scene.render.engine = 'CYCLES'
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
-#rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
+rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
 
-# Create Coronal Camera.
-camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],10)
+# Create Cameras
+camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
+camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
+camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
