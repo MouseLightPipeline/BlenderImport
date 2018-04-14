@@ -6,7 +6,7 @@ import imp
 
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
 meshFolder = "Z:\\Allen_compartments\\Horta Obj"
-swcFolder = "C:\\swcs"
+swcFolder = "Z:\\for jayaram"
 
 # Get custom functions.
 sys.path.append(os.path.join(mainFolder, "MainFunctions"))
@@ -27,14 +27,15 @@ bg.inputs[1].default_value = 1.0
 with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache.blend")) as (data_from, data_to):
     data_to.materials = data_from.materials
 rootMat = bpy.data.materials.get("RootMaterial")
+dendMat = bpy.data.materials.get("DendriteMaterial")
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
-#rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
-#rootObj.data.materials.append(rootMat)
+rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
+rootObj.data.materials.append(rootMat)
 
 # Create Cameras
-#camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
+camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
 #camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
 #camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
 
@@ -44,9 +45,17 @@ axBev = bpy.context.active_object
 axBev.name = "AxonBevel"
 axBev.scale = ((10,10,10))
 axBev.select = False
+# dendrites.
+bpy.ops.curve.primitive_bezier_circle_add()
+dendBev = bpy.context.active_object
+dendBev.name = "DendBevel"
+dendBev.scale = ((15,15,15))
+dendBev.select = False
 
 # Import SWC
 axon1 = IM.importSwc(os.path.join(swcFolder,"AA0227_axon.swc"), axBev)
+dend1 = IM.importSwc(os.path.join(swcFolder,"AA0227_dendrite.swc"), dendBev)
+dend1.data.materials.append(dendMat)
 
 
 
