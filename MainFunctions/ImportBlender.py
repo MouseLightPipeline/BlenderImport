@@ -1,15 +1,17 @@
 import bpy
 import os
 import re
+import glob
 import numpy as np 
 from mathutils import Vector
 import sys
 from math import radians
-def HortaObj(fileLoc):
-	print("HELLO!")
+def HortaObj(folderLoc,anatomyName):
+	fileLoc = glob.glob(os.path.join(folderLoc,'{0}_*.obj'.format(anatomyName)))
+	print(fileLoc)
 	# Brain Mesh.
 	#Load (Use Horta OBJs)
-	bpy.ops.import_scene.obj(filepath=fileLoc)
+	bpy.ops.import_scene.obj(filepath=fileLoc[0])
 	obj= bpy.context.selected_objects[0]
 	obj = bpy.data.objects[obj.name]
 	#scale

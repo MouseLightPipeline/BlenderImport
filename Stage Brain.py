@@ -7,7 +7,7 @@ import json
 from pprint import pprint
 
 # Current  
-data = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender\\Scene.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender\\Scene.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
@@ -38,7 +38,7 @@ axonMat = bpy.data.materials.get("AxonMaterial")
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
-#rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
+rootObj = IM.HortaObj(meshFolder, "root")
 #rootObj.data.materials.append(rootMat)
 
 # Create Cameras
@@ -50,25 +50,27 @@ camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
 bpy.ops.curve.primitive_bezier_circle_add()
 axBev = bpy.context.active_object
 axBev.name = "AxonBevel"
-axBev.scale = ((10,10,10))
+rad = scene["settings"][0]["axonWidth"]
+axBev.scale = ((rad,rad,rad))
 axBev.select = False
 # dendrites.
 bpy.ops.curve.primitive_bezier_circle_add()
 dendBev = bpy.context.active_object
 dendBev.name = "DendBevel"
-dendBev.scale = ((15,15,15))
+rad = scene["settings"][0]["dendWidth"]
+dendBev.scale = ((rad,rad,rad))
 dendBev.select = False
 
 # Import SWC
-for neuron in data["neurons"]:
+for neuron in scene["neurons"]:
     axon = IM.importSwc(os.path.join(swcFolder,'{0}_axon.swc'.format(neuron["id"])), axBev)
     axCopy = axonMat.copy()
     axon.data.materials.append(axCopy)
-    axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = list(neuron["color"]) + (1,)
+    axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
     dend = IM.importSwc(os.path.join(swcFolder,'{0}_dendrite.swc'.format(neuron["id"])), dendBev)
     dendCopy = dendMat.copy()
     dend.data.materials.append(dendCopy)
-    dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = list(neuron["color"]) + (1,)
+    dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
 
 
 
