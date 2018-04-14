@@ -110,6 +110,7 @@ def importSwc(filePath, radius):
         objectdata.scale=((0.001,0.001,0.001))
         objectdata.location = ( -5.692, -6.56, 3.972 )
         objectdata.rotation_euler = (radians(-90), 0, 0 )
+
         bpy.context.scene.objects.link(objectdata)
  
         polyline = curvedata.splines.new('POLY')
@@ -135,12 +136,18 @@ def importSwc(filePath, radius):
  #       bpy.ops.object.duplicate(linked=True)
  #       bpy.context.object.location = (values[0]/1000, values[1]/1000, values[2]/1000)
  #       bpy.context.active_object.name = fileName + "Sphere"
-	    # Join together.
-        bpy.ops.object.select_pattern(pattern=fileName+"Curve*")
-        bpy.context.scene.objects.active = objectdata
-        bpy.ops.object.join()
-        objectdata.name = fileName
-        objectdata.select = False
+# Join together.
+
+
+    bpy.ops.object.select_pattern(pattern=fileName+"Curve*")
+    bpy.context.scene.objects.active = objectdata
+    bpy.ops.object.join()
+    objectdata.name = fileName
+    objectdata.select = False
      
-        # Group together.
-        bpy.ops.object.select_pattern(pattern=fileName+"*")
+    # Group together.
+    bpy.ops.object.select_pattern(pattern=fileName+"*")
+    # Apply transform.
+    bpy.context.scene.objects.active = objectdata
+    bpy.ops.object.transform_apply(location = True, scale = True, rotation = True)
+    bpy.ops.object.select_all(action='DESELECT')
