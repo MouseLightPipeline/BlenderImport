@@ -52,6 +52,8 @@ axBev = bpy.context.active_object
 axBev.name = "AxonBevel"
 rad = scene["settings"][0]["axonWidth"]
 axBev.scale = ((rad,rad,rad))
+axBev.hide =True
+axBev.hide_render = True
 axBev.select = False
 # dendrites.
 bpy.ops.curve.primitive_bezier_circle_add()
@@ -59,6 +61,8 @@ dendBev = bpy.context.active_object
 dendBev.name = "DendBevel"
 rad = scene["settings"][0]["dendWidth"]
 dendBev.scale = ((rad,rad,rad))
+dendBev.hide =True
+dendBev.hide_render = True
 dendBev.select = False
 
 # Import SWC
@@ -71,6 +75,11 @@ for neuron in scene["neurons"]:
     dendCopy = dendMat.copy()
     dend.data.materials.append(dendCopy)
     dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+    
+# Import Anatomy
+for area in scene["anatomy"]:
+    obj = IM.HortaObj(meshFolder, area["acronym"])
+    
 
 
 
