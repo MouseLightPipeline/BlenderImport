@@ -35,16 +35,17 @@ with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache.blend")
 rootMat = bpy.data.materials.get("RootMaterial")
 dendMat = bpy.data.materials.get("DendriteMaterial")
 axonMat = bpy.data.materials.get("AxonMaterial")
+anaMat = bpy.data.materials.get("AnatomyMaterial")
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
 rootObj = IM.HortaObj(meshFolder, "root")
-#rootObj.data.materials.append(rootMat)
+rootObj.data.materials.append(rootMat)
 
 # Create Cameras
 camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
-#camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
-#camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
+camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
+camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
 
 # Create bezier circle for axons.
 bpy.ops.curve.primitive_bezier_circle_add()
@@ -79,6 +80,10 @@ for neuron in scene["neurons"]:
 # Import Anatomy
 for area in scene["anatomy"]:
     obj = IM.HortaObj(meshFolder, area["acronym"])
+    anaCopy = anaMat.copy()
+    obj.data.materials.append(anaCopy)
+    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
+    
     
 
 
