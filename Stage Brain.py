@@ -6,6 +6,7 @@ import imp
 
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
 meshFolder = "Z:\\Allen_compartments\\Horta Obj"
+swcFolder = "C:\\swcs"
 
 # Get custom functions.
 sys.path.append(os.path.join(mainFolder, "MainFunctions"))
@@ -29,12 +30,14 @@ rootMat = bpy.data.materials.get("RootMaterial")
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
-rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
-rootObj.data.materials.append(rootMat)
+#rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
+#rootObj.data.materials.append(rootMat)
 
 # Create Cameras
 #camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
 #camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
 #camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
 
+# Import SWC
+IM.importSwc(os.path.join(swcFolder,"AA0227_axon.swc"), 10)
 
