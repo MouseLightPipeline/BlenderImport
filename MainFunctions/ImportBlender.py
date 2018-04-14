@@ -34,17 +34,21 @@ def CreateCam(name,pos,rot,scale):
 
 def CreateLight(nameLight,pos,typeLight):
 	scene = bpy.context.scene
-
+	bpy.ops.object.lamp_add(type='AREA')
+	obj= bpy.context.selected_objects[0]
+	obj = bpy.data.lamps[obj.name]
+	obj.node_tree.nodes["Emission"].inputs[0].default_value =(1,0,0,1)
+	return obj
 	# Create new lamp datablock
-	lamp_data = bpy.data.lamps.new(name=nameLight, type=typeLight)
+	#lamp_data = bpy.data.lamps.new(name=nameLight, type=typeLight)
 
 	# Create new object with our lamp datablock
-	lamp_object = bpy.data.objects.new(name=nameLight, object_data=lamp_data)
+	#lamp_object = bpy.data.objects.new(name=nameLight, object_data=lamp_data)
 
 	# Link lamp object to the scene so it'll appear in this scene
-	scene.objects.link(lamp_object)
+	#scene.objects.link(lamp_object)
 
 	# Place lamp to a specified location
-	lamp_object.location = pos
-	return lamp_object
+	#lamp_object.location = pos
+	#return lamp_object
 
