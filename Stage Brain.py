@@ -22,9 +22,15 @@ bg = world.node_tree.nodes['Background']
 bg.inputs[0].default_value[:3] = (1, 1, 1)
 bg.inputs[1].default_value = 1.0
 
+# Import materials.
+with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache.blend")) as (data_from, data_to):
+    data_to.materials = data_from.materials
+rootMat = bpy.data.materials.get("RootMaterial")
+
 # Brain Mesh.
 #Load (Use Horta OBJs)
 rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
+rootObj.data.materials.append(rootMat)
 
 # Create Cameras
 #camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
