@@ -3,7 +3,13 @@ import os
 import sys
 from math import radians
 import imp
+import json
+from pprint import pprint
 
+# Current  
+data = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender\\Scene.json'))
+
+# Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
 meshFolder = "Z:\\Allen_compartments\\Horta Obj"
 swcFolder = "Z:\\for jayaram"
@@ -28,11 +34,12 @@ with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache.blend")
     data_to.materials = data_from.materials
 rootMat = bpy.data.materials.get("RootMaterial")
 dendMat = bpy.data.materials.get("DendriteMaterial")
+axonMat = bpy.data.materials.get("AxonMaterial")
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
-rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
-rootObj.data.materials.append(rootMat)
+#rootObj = IM.HortaObj(os.path.join(meshFolder, "root_997.obj"))
+#rootObj.data.materials.append(rootMat)
 
 # Create Cameras
 camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
@@ -53,10 +60,15 @@ dendBev.scale = ((15,15,15))
 dendBev.select = False
 
 # Import SWC
-axon1 = IM.importSwc(os.path.join(swcFolder,"AA0227_axon.swc"), axBev)
-dend1 = IM.importSwc(os.path.join(swcFolder,"AA0227_dendrite.swc"), dendBev)
-dend1.data.materials.append(dendMat)
-
+for neuron in data["neurons"]:
+    axon = IM.importSwc(os.path.join(swcFolder,'{0}_axon.swc'.format(neuron["id"])), axBev)
+    axCopy = axonMat.copy()
+    axon.data.materials.append(axCopy)
+    axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = list(neuron["color"]) + (1,)
+    dend = IM.importSwc(os.path.join(swcFolder,'{0}_dendrite.swc'.format(neuron["id"])), dendBev)
+    dendCopy = dendMat.copy()
+    dend.data.materials.append(dendCopy)
+    dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = list(neuron["color"]) + (1,)
 
 
 
