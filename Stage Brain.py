@@ -38,6 +38,16 @@ rootMat = bpy.data.materials.get("RootMaterial")
 #camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
 #camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
 
+# Create bezier circle for axons.
+bpy.ops.curve.primitive_bezier_circle_add()
+axBev = bpy.context.active_object
+axBev.name = "AxonBevel"
+axBev.scale = ((10,10,10))
+axBev.select = False
+
 # Import SWC
-IM.importSwc(os.path.join(swcFolder,"AA0227_axon.swc"), 10)
+axon1 = IM.importSwc(os.path.join(swcFolder,"AA0227_axon.swc"), axBev)
+
+
+
 

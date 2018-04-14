@@ -35,7 +35,7 @@ def CreateCam(name,pos,rot,scale):
 	cam.data.ortho_scale = scale
 	return cam
 
-def importSwc(filePath, radius):
+def importSwc(filePath, bevelObj):
     # Get file info.
     fileName    = os.path.basename(filePath)
     cFile       = filePath
@@ -105,11 +105,12 @@ def importSwc(filePath, radius):
         objectdata = bpy.data.objects.new(fileName + "Curve", curvedata)
         objectdata.location = (0,0,0) #object origin
         objectdata.data.fill_mode           = 'FULL'
-        objectdata.data.bevel_depth         = radius
+        objectdata.data.bevel_object = bevelObj
         objectdata.data.bevel_resolution    = 4
         objectdata.scale=((0.001,0.001,0.001))
         objectdata.location = ( -5.692, -6.56, 3.972 )
         objectdata.rotation_euler = (radians(-90), 0, 0 )
+        objectdata.data.use_fill_caps = True
 
         bpy.context.scene.objects.link(objectdata)
  
@@ -151,3 +152,4 @@ def importSwc(filePath, radius):
     bpy.context.scene.objects.active = objectdata
     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True)
     bpy.ops.object.select_all(action='DESELECT')
+    return objectdata
