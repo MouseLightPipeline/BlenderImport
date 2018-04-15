@@ -7,7 +7,7 @@ import json
 from pprint import pprint
 
 # Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender\\Scene.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Scene 3 examples.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
