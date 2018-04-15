@@ -12,7 +12,7 @@ scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Scene 3 examples.json'))
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
 meshFolder = "Z:\\Allen_compartments\\Horta Obj"
-swcFolder = "Z:\\for jayaram"
+swcFolder = "Z:\\neuronSwcs"
 
 # Get custom functions.
 sys.path.append(os.path.join(mainFolder, "MainFunctions"))
@@ -44,8 +44,9 @@ rootObj.data.materials.append(rootMat)
 
 # Create Cameras
 camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
-camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(90),0, radians(90)],15)
-camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-180)],15)
+camS = IM.CreateCam("Sagittal Camera",[50,0,0],[radians(-90),radians(180), radians(90)],15)
+camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-90)],20)
+camO = IM.CreateCam("ObliqueCamera",[-50,-50,50],[radians(55),0, radians(-45)],20)
 
 # Create bezier circle for axons.
 bpy.ops.curve.primitive_bezier_circle_add()
