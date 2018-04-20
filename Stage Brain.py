@@ -7,7 +7,7 @@ import json
 from pprint import pprint
 
 # Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\central VAL\centralVAL.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\PT-Thal_vs_Med examples\\thal_med.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
@@ -53,7 +53,7 @@ camO = IM.CreateCam("ObliqueCamera",[-50,-50,50],[radians(55),0, radians(-45)],2
 bpy.ops.curve.primitive_bezier_circle_add()
 axBev = bpy.context.active_object
 axBev.name = "AxonBevel"
-rad = scene["settings"][0]["axonWidth"]
+rad = scene["settings"]["axonWidth"]
 axBev.scale = ((rad,rad,rad))
 axBev.hide =True
 axBev.hide_render = True
@@ -62,7 +62,7 @@ axBev.select = False
 bpy.ops.curve.primitive_bezier_circle_add()
 dendBev = bpy.context.active_object
 dendBev.name = "DendBevel"
-rad = scene["settings"][0]["dendWidth"]
+rad = scene["settings"]["dendWidth"]
 dendBev.scale = ((rad,rad,rad))
 dendBev.hide =True
 dendBev.hide_render = True
@@ -90,12 +90,18 @@ for neuron in scene["neurons"]:
     #somaSphere.rotation_euler = (radians(-90), 0, 0 )
     #somaSphere.select = False
 # Import Anatomy
-for area in scene["anatomy"]:
-    obj = IM.HortaObj(meshFolder, area["acronym"])
+if (len(scene["anatomy"])>1):
+    for area in scene["anatomy"]:
+        obj = IM.HortaObj(meshFolder, area["acronym"])
+        anaCopy = anaMat.copy()
+        obj.data.materials.append(anaCopy)
+        anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
+else:
+    obj = IM.HortaObj(meshFolder, scene["anatomy"]["acronym"])
     anaCopy = anaMat.copy()
     obj.data.materials.append(anaCopy)
-    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
-    
+    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(scene["anatomy"]["color"]) + (1,)
+        
     
 
 
