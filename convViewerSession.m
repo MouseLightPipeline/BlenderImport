@@ -59,7 +59,7 @@ for iArea = 1:length(ind)
    anatomy(iArea).acronym = allenMesh(cArea).acronym;
    anatomy(iArea).color = cMap(iArea,:);
 end
-anatomy(length(ind)+1) = [];
+
 %% create settings.
 settings = struct('axonWidth',Inputs.AxonWidth,...
     'dendWidth',Inputs.AxonWidth);

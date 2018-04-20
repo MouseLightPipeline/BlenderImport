@@ -7,7 +7,7 @@ import json
 from pprint import pprint
 
 # Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\PT-Thal_vs_Med examples\\thal_med.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\Clustering\\Clustering Thalamus Pics\\3groups.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
