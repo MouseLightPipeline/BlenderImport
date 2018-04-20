@@ -6,6 +6,17 @@ import numpy as np
 from mathutils import Vector
 import sys
 from math import radians
+def importObject(blendfile,object):
+    section   = "\\Object\\"
+
+    filepath  = blendfile + section + object
+    directory = blendfile + section
+    filename  = object
+
+    bpy.ops.wm.append(
+        filepath=filepath, 
+        filename=filename,
+        directory=directory)
 def HortaObj(folderLoc,anatomyName):
 	fileLoc = glob.glob(os.path.join(folderLoc,'{0}_*.obj'.format(anatomyName)))
 	print(fileLoc)
@@ -56,6 +67,9 @@ def importSwc(filePath, bevelObj):
             swc.append(values)
     swc         = np.array(swc)
     swc         = swc.astype(float)
+    # store root
+    root = swc[0,2:5]    
+
     # Walk through Tree.
     nodeList    = swc[:,0]
     drawnList   = []    # Holds list of nodes already drawn.
@@ -93,6 +107,7 @@ def importSwc(filePath, bevelObj):
                 else:
                     nextPoint = 0
  	# actually start building shape here.
+
     # Generate paths.
     nPaths = paths[:,3].max().astype(int)
     for iPath in range(1,nPaths+1):
@@ -119,8 +134,9 @@ def importSwc(filePath, bevelObj):
         polyline = curvedata.splines.new('POLY')
         polyline.points.add(nodes.shape[0]-1)
          
-        # First sphere
+        # Soma
         values = [nodes[0,0].astype(float).item(0), nodes[0,1].astype(float).item(0), nodes[0,2].astype(float).item(0)]
+
  #       bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=objectdata.data.bevel_depth/1000,location=(values[0]/1000, values[1]/1000, values[2]/1000))
  #       rootSphere = bpy.context.selected_objects
  #       bpy.context.active_object.name = fileName + "Sphere"
@@ -154,4 +170,4 @@ def importSwc(filePath, bevelObj):
     bpy.context.scene.objects.active = objectdata
     bpy.ops.object.transform_apply(location = True, scale = True, rotation = True)
     bpy.ops.object.select_all(action='DESELECT')
-    return objectdata
+    return objectdata,root
