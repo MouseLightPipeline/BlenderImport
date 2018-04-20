@@ -7,7 +7,7 @@ import json
 from pprint import pprint
 
 # Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\Clustering\\Clustering Thalamus Pics\\3groups.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\Clustering\\MD Group Pics\\MDGroup.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
@@ -26,7 +26,7 @@ bpy.context.scene.render.engine = 'CYCLES'
 world = bpy.data.worlds['World']
 world.use_nodes = True
 bg = world.node_tree.nodes['Background']
-bg.inputs[0].default_value[:3] = (1, 1, 1)
+bg.inputs[0].default_value[:3] = (0, 0, 0)
 bg.inputs[1].default_value = 1.0
 
 # Import materials.
@@ -36,7 +36,9 @@ rootMat = bpy.data.materials.get("RootMaterial")
 dendMat = bpy.data.materials.get("DendriteMaterial")
 axonMat = bpy.data.materials.get("AxonMaterial")
 anaMat = bpy.data.materials.get("AnatomyMaterial")
-IM.importObject(os.path.join(mainFolder, "Materials","cache.blend"),"BackDrop")
+
+# Create sun light (Position is irrelevant)
+sunObj = IM.createLight("SUN","Sun Light",(0,0,7.5),3)
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
@@ -74,10 +76,12 @@ for neuron in scene["neurons"]:
     axCopy = axonMat.copy()
     axon.data.materials.append(axCopy)
     axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
-    [dend,root] = IM.importSwc(os.path.join(swcFolder,'{0}_dendrite.swc'.format(neuron["id"])), dendBev)
-    dendCopy = dendMat.copy()
-    dend.data.materials.append(dendCopy)
-    dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+    dendFile = os.path.join(swcFolder,'{0}_dendrite.swc'.format(neuron["id"]))
+    if os.path.isfile(dendFile):
+        [dend,root] = IM.importSwc(dendFile, dendBev)
+        dendCopy = dendMat.copy()
+        dend.data.materials.append(dendCopy)
+        dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
     # create soma.
     #bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0]/1000, root[1]/1000, root[2]/1000))
     #somaSphere = bpy.context.active_object

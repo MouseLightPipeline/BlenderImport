@@ -6,6 +6,18 @@ import numpy as np
 from mathutils import Vector
 import sys
 from math import radians
+
+def createLight(lightType,lightName,pos,strength):
+	scene = bpy.context.scene
+	lamp_data = bpy.data.lamps.new(name=lightName, type=lightType)
+	lamp_object = bpy.data.objects.new(name=lightName, object_data=lamp_data)
+	scene.objects.link(lamp_object)
+	lamp_object.location = pos
+	bpy.data.lamps[lamp_object.name].use_nodes = True
+	e_node = bpy.data.lamps[lamp_object.name].node_tree
+	print(e_node)
+	e_node.nodes["Emission"].inputs[1].default_value = strength
+	return lamp_object
 def importObject(blendfile,object):
     section   = "\\Object\\"
 
@@ -25,6 +37,7 @@ def HortaObj(folderLoc,anatomyName):
 	bpy.ops.import_scene.obj(filepath=fileLoc[0])
 	obj= bpy.context.selected_objects[0]
 	obj = bpy.data.objects[obj.name]
+	obj.name = "Allen_"+obj.name
 	#scale
 	#bpy.ops.transform.resize(value=(0.001,0.001,0.001))
 	obj.scale = (0.001, 0.001, 0.001)
