@@ -1,15 +1,17 @@
 {
 	"settings":
-	[
 			{
 			"axonWidth": 10,
-			"dendWidth":15
-		}
-	],
+			"dendWidth":15,
+			"somaSize": 100
+		},
 	"neurons":[
-	
-	],
-	"anatomy":[
+		{
+			"id":"AA0001",
+			"color":[1,0,0]
+		}],
+	"anatomy":{
 
-	]
+	}
+
 }

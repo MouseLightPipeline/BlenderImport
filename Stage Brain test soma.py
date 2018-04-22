@@ -3,11 +3,12 @@ import os
 import sys
 from math import radians
 import imp
+import numpy
 import json
 from pprint import pprint
 
 # Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\Clustering\\MD Group Pics\\MDGroup.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender\\Scene.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
@@ -42,15 +43,8 @@ sunObj = IM.createLight("SUN","Sun Light",(0,0,7.5),3)
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
-rootObj = IM.HortaObj(meshFolder, "root")
-rootObj.data.materials.append(rootMat)
-
-# Create Cameras
-camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
-camS = IM.CreateCam("Sagittal Camera",[-50,0,0],[radians(-90),radians(180), radians(90)],15)
-camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-90)],20)
-camO = IM.CreateCam("ObliqueCamera",[-50,-50,50],[radians(55),0, radians(-45)],20)
-
+#rootObj = IM.HortaObj(meshFolder, "root")
+#rootObj.data.materials.append(rootMat)
 # Create bezier circle for axons.
 bpy.ops.curve.primitive_bezier_circle_add()
 axBev = bpy.context.active_object
@@ -82,17 +76,17 @@ for neuron in scene["neurons"]:
         dendCopy = dendMat.copy()
         dend.data.materials.append(dendCopy)
         dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
-        # create soma.
-        root = (root[0]/1000,root[2]/1000,root[1]/1000)
-        to_origin = ( -5.692, -6.56, 3.972 )
-        root = (root[0] + to_origin[0],root[1] + to_origin[1], -root[2] + to_origin[2])
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
-        somaSphere = bpy.context.active_object
-        somaSphere.name = neuron["id"] + "_Soma"
-        somaSphere.data.materials.append(dendCopy)
-        somaSize = scene["settings"]["somaSize"]/1000
-        somaSphere.dimensions=((somaSize,somaSize,somaSize))
-        somaSphere.data.polygons[0].use_smooth= True
+    # create soma.
+    root = (root[0]/1000,root[2]/1000,root[1]/1000)
+    to_origin = ( -5.692, -6.56, 3.972 )
+    root = (root[0] + to_origin[0],root[1] + to_origin[1], -root[2] + to_origin[2])
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
+    somaSphere = bpy.context.active_object
+    somaSphere.name = neuron["id"] + "_Soma"
+    somaSphere.data.materials.append(dendCopy)
+    somaSize = scene["settings"]["somaSize"]/1000
+    somaSphere.dimensions=((somaSize,somaSize,somaSize))
+    somaSphere.data.polygons[0].use_smooth= True
 # Import Anatomy
 if (len(scene["anatomy"])>1):
     for area in scene["anatomy"]:
@@ -100,7 +94,7 @@ if (len(scene["anatomy"])>1):
         anaCopy = anaMat.copy()
         obj.data.materials.append(anaCopy)
         anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
-else:
+elif len(scene["anatomy"])==1:
     obj = IM.HortaObj(meshFolder, scene["anatomy"]["acronym"])
     anaCopy = anaMat.copy()
     obj.data.materials.append(anaCopy)
