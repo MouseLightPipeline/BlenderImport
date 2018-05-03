@@ -5,6 +5,7 @@ import glob
 import numpy as np 
 from mathutils import Vector
 import sys
+import time
 from math import radians
 
 def createLight(lightType,lightName,pos,strength):
@@ -289,20 +290,32 @@ def importSwcCap(filePath, bevelObj,material):
             values = [nodes[iNode,0].astype(float).item(0), nodes[iNode,1].astype(float).item(0), nodes[iNode,2].astype(float).item(0)]
             polyline.points[iNode].co = (values[0], values[1], values[2], 1)
         # ADD ENDCAP.
-        bpy.ops.object.select_all(action='DESELECT')
-        #bpy.context.scene.objects.active = endCap
-        endCap[0].select = True
-        newCap  = bpy.ops.object.duplicate(linked=False)
+        start_time = time.time()
         values = [nodes[nodes.shape[0]-1,0].astype(float).item(0), nodes[nodes.shape[0]-1,1].astype(float).item(0), nodes[nodes.shape[0]-1,2].astype(float).item(0)]
         values = transCoords(values)
-        # Set latest created object to active.
-        bpy.context.scene.objects.active = bpy.context.selected_objects[0]
-        bpy.context.object.location = (values[0], values[1], values[2])
-        bpy.ops.object.select_all(action='DESELECT')
-        bpy.context.active_object.name = fileName + "Sphere " + str(iPath)
-        bpy.context.active_object.parent = endCap[0]
-        bpy.context.active_object.matrix_parent_inverse = endCap[0].matrix_world.inverted()
-
+        bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=(bevelObj.scale[0]/1000),location=(values[0], values[1], values[2]))
+        # bpy.context.active_object.name = fileName + "Sphere " + str(iPath)
+        
+        # bpy.context.scene.objects.active = endCap[0]
+        # bpy.context.active_object.select = True
+        # bpy.ops.object.join()
+        print(time.time() - start_time)
+        # bpy.ops.object.select_all(action='DESELECT')
+        # #bpy.context.scene.objects.active = endCap
+        # start_time = time.time()
+        # endCap[0].select = True
+        # newCap  = bpy.ops.object.duplicate(linked=False)
+        # values = [nodes[nodes.shape[0]-1,0].astype(float).item(0), nodes[nodes.shape[0]-1,1].astype(float).item(0), nodes[nodes.shape[0]-1,2].astype(float).item(0)]
+        # values = transCoords(values)
+        # # Set latest created object to active.
+        # bpy.context.scene.objects.active = bpy.context.selected_objects[0]
+        # bpy.context.object.location = (values[0], values[1], values[2])
+        # bpy.ops.object.select_all(action='DESELECT')
+        # bpy.context.active_object.name = fileName + "Sphere " + str(iPath)
+        
+        # bpy.context.active_object.parent = endCap[0]
+        # bpy.context.active_object.matrix_parent_inverse = endCap[0].matrix_world.inverted()
+        # print(time.time() - start_time)
 
 # Join together.
     bpy.ops.object.select_pattern(pattern=fileName+"Curve*")
@@ -312,6 +325,11 @@ def importSwcCap(filePath, bevelObj,material):
     objectdata.name = fileName
     objectdata.select = False
     objectdata.data.materials.append(material)
+
+    # bpy.ops.object.select_all(action='DESELECT')
+    # bpy.ops.object.select_pattern(pattern="*swcSphere*")
+    # bpy.context.scene.objects.active = endCap[0]
+    # bpy.ops.object.parent_set()
      
     # Group together.
     # bpy.ops.object.select_pattern(pattern=fileName+"*")
