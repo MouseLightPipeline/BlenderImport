@@ -7,11 +7,11 @@ import json
 from pprint import pprint
 
 # Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\Clustering\\MD Group Pics\\MDGroup.json'))
+scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\Soma locations\\soma.json'))
 
 # Folder locations.
 mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
-meshFolder = "Z:\\Allen_compartments\\Horta Obj"
+meshFolder = "Z:\\Allen_compartments\\obj"
 swcFolder = "Z:\\neuronSwcs"
 
 # Get custom functions.
@@ -77,34 +77,38 @@ for neuron in scene["neurons"]:
     axon.data.materials.append(axCopy)
     axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
     dendFile = os.path.join(swcFolder,'{0}_dendrite.swc'.format(neuron["id"]))
+    # create soma.
+    root = (root[0]/1000,root[2]/1000,root[1]/1000)
+    to_origin = ( -5.692, -6.56, 3.972 )
+    root = (root[0] + to_origin[0],root[1] + to_origin[1], -root[2] + to_origin[2])
+    bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
+    somaSphere = bpy.context.active_object
+    somaSphere.name = neuron["id"] + "_Soma"
+    somaSphere.data.materials.append(axCopy)
+    somaSize = scene["settings"]["somaSize"]/1000
+    somaSphere.dimensions=((somaSize,somaSize,somaSize))
+    somaSphere.data.polygons[0].use_smooth= True
     if os.path.isfile(dendFile):
         [dend,root] = IM.importSwc(dendFile, dendBev)
         dendCopy = dendMat.copy()
         dend.data.materials.append(dendCopy)
         dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
-        # create soma.
-        root = (root[0]/1000,root[2]/1000,root[1]/1000)
-        to_origin = ( -5.692, -6.56, 3.972 )
-        root = (root[0] + to_origin[0],root[1] + to_origin[1], -root[2] + to_origin[2])
-        bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
-        somaSphere = bpy.context.active_object
-        somaSphere.name = neuron["id"] + "_Soma"
-        somaSphere.data.materials.append(dendCopy)
-        somaSize = scene["settings"]["somaSize"]/1000
-        somaSphere.dimensions=((somaSize,somaSize,somaSize))
-        somaSphere.data.polygons[0].use_smooth= True
+
 # Import Anatomy
+scene["anatomy"] = list(scene["anatomy"])
+print(type(scene["anatomy"]))
 if (len(scene["anatomy"])>1):
     for area in scene["anatomy"]:
+        print(area)
         obj = IM.HortaObj(meshFolder, area["acronym"])
         anaCopy = anaMat.copy()
         obj.data.materials.append(anaCopy)
         anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
 else:
-    obj = IM.HortaObj(meshFolder, scene["anatomy"]["acronym"])
+    obj = IM.HortaObj(meshFolder, scene["anatomy"][0]["acronym"])
     anaCopy = anaMat.copy()
     obj.data.materials.append(anaCopy)
-    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(scene["anatomy"]["color"]) + (1,)
+    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(scene["anatomy"][0]["color"]) + (1,)
         
     
 

@@ -5,6 +5,7 @@ p.addOptional('inputFile',[],@(x) ischar(x));
 p.addParameter('OutputFile',[],@ischar);
 p.addParameter('AxonWidth',15,@(x) isnumeric(x) && length(x) == 1);
 p.addParameter('DendriteWidth',20,@(x) isnumeric(x) && length(x) == 1);
+p.addParameter('SomaSize',100,@(x) isnumeric(x) && length(x) == 1);
 p.addParameter('MeshFile',fullfile('//dm11/mousebrainmicro/Allen_compartments/Matlab/allenMeshCorrectedAxis.mat'),@(x) ischar(x));
 p.parse(varargin{:});
 Inputs = p.Results;
@@ -19,7 +20,8 @@ if isempty(Inputs.inputFile)
 end
 
 if isempty(Inputs.OutputFile)
-    [file,path] = uiputfile('.json','Save as..');
+    [path,~,~] = fileparts(Inputs.inputFile);
+    [file,path] = uiputfile('.json','Save as..',path);
     if path==0
         return
     end
@@ -62,7 +64,8 @@ end
 
 %% create settings.
 settings = struct('axonWidth',Inputs.AxonWidth,...
-    'dendWidth',Inputs.AxonWidth);
+    'dendWidth',Inputs.AxonWidth,...
+    'somaSize',Inputs.SomaSize);
 
 %% Join
 data = struct('settings',settings,...

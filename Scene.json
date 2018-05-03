@@ -3,7 +3,7 @@
 			{
 			"axonWidth": 10,
 			"dendWidth":15,
-			"somaSize": 100
+			"somaSize": 50
 		},
 	"neurons":[
 		{
