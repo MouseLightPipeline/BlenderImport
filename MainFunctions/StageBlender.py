@@ -10,9 +10,12 @@ import ImportBlender as IM
 def testBlend():
 	print("HELLO!")
 
-def StageSession(scene,display,folders):
+def StageSession(sessionFolder,display):
 	print("Im here!")
+	# Get main repo folder.
 	mainFolder = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+	# Load scene info.
+	scene = json.load(open(os.path.join(sessionFolder,'scene.json')))
 	imp.reload(IM) # So you can change script on the fly.
 
 	# Set Cycles Render.

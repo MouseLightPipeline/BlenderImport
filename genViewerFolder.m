@@ -1,4 +1,4 @@
-function [outputArg1,outputArg2] = convViewerSession(inputFile,varargin)
+function [outputArg1,outputArg2] = genViewerFolder(inputFile,varargin)
 %% Parse input.
 p = inputParser;
 p.addOptional('inputFile',[],@(x) ischar(x));
@@ -45,6 +45,8 @@ for i =1:size(names,2)
    neurons(i).id = name;
    neurons(i).color = color;
 end
+
+%% Write swcs.
 
 %% get Area's
 ind = find(Session.visibleStructures);
