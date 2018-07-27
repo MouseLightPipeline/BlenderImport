@@ -12,11 +12,10 @@ brainColor = [1,1,1]
 axonWidth = 10
 dendWidth = 15
 somaSize = 100
-
 slicePlaneFlag = True
 
 # Folder locations.
-mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender3\\"
+mainFolder = "C:\\Users\\winnubstj\\Dropbox\\Matlab Projects\\MouseLight repos\\BlenderImport\\"
 meshFolder = "Z:\\Allen_compartments\\Horta Obj"
 swcFolder = "Z:\\neuronSwcs\\"
 
