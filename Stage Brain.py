@@ -6,13 +6,15 @@ import imp
 import json
 from pprint import pprint
 
-# Current  
-scene = json.load(open('C:\\Users\\winnubstj\\Google Drive\\MouseLight Manuscript\\Figure 4\\Soma locations\\soma.json'))
+# Current Session
+scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender test\\session1.json'))
+brainColor = [1,1,1]
+slicePlaneFlag = True
 
 # Folder locations.
-mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender\\"
-meshFolder = "Z:\\Allen_compartments\\obj"
-swcFolder = "Z:\\neuronSwcs"
+mainFolder = "C:\\Users\\winnubstj\\Desktop\\Blender3\\"
+meshFolder = "Z:\\Allen_compartments\\Horta Obj"
+swcFolder = "Z:\\neuronSwcs\\"
 
 # Get custom functions.
 sys.path.append(os.path.join(mainFolder, "MainFunctions"))
@@ -21,29 +23,35 @@ imp.reload(IM) # So you can change script on the fly.
 
 # Set Cycles Render.
 bpy.context.scene.render.engine = 'CYCLES'
+bpy.context.scene.cycles.film_transparent = True # set transparency for easy background change
 
 # Set world emmission (or lighting)
 world = bpy.data.worlds['World']
 world.use_nodes = True
 bg = world.node_tree.nodes['Background']
-bg.inputs[0].default_value[:3] = (0, 0, 0)
+bg.inputs[0].default_value[:3] = (1, 1, 1)
 bg.inputs[1].default_value = 1.0
 
 # Import materials.
 with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache.blend")) as (data_from, data_to):
     data_to.materials = data_from.materials
 rootMat = bpy.data.materials.get("RootMaterial")
+rootMat.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(brainColor) + (1,)
 dendMat = bpy.data.materials.get("DendriteMaterial")
 axonMat = bpy.data.materials.get("AxonMaterial")
 anaMat = bpy.data.materials.get("AnatomyMaterial")
-
-# Create sun light (Position is irrelevant)
-sunObj = IM.createLight("SUN","Sun Light",(0,0,7.5),3)
 
 # Brain Mesh.
 #Load (Use Horta OBJs)
 rootObj = IM.HortaObj(meshFolder, "root")
 rootObj.data.materials.append(rootMat)
+
+# Import slice plane
+if slicePlaneFlag:
+    blendfile = os.path.join(mainFolder, "Materials","cache.blend")
+    section   = '\\Object\\'
+    directory = blendfile + section
+    bpy.ops.wm.append(filename='Slice plane', directory=directory)
 
 # Create Cameras
 camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
@@ -71,46 +79,41 @@ dendBev.hide_render = True
 dendBev.select = False
 
 # Import SWC
-for neuron in scene["neurons"]:
-    [axon,root] = IM.importSwc(os.path.join(swcFolder,'{0}_axon.swc'.format(neuron["id"])), axBev)
-    axCopy = axonMat.copy()
-    axon.data.materials.append(axCopy)
-    axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+neurons = scene["neurons"] if isinstance(scene["neurons"],list) else [scene["neurons"]]
+areas = scene["anatomy"] if isinstance(scene["anatomy"],list) else [scene["anatomy"]]
+counter = 0
+for neuron in neurons:
+    counter = counter+1
+    print('Neuron {} of {}'.format(counter,len(neurons)))
+    # Axon.
+    axFile = os.path.join(swcFolder,'{0}_axon.swc'.format(neuron["id"]))
+    if os.path.isfile(axFile):
+        [axon,root] = IM.importSwc(axFile, axBev)
+        axCopy = axonMat.copy()
+        axon.data.materials.append(axCopy)
+        axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+    # Dendrite.
     dendFile = os.path.join(swcFolder,'{0}_dendrite.swc'.format(neuron["id"]))
-    # create soma.
-    root = (root[0]/1000,root[2]/1000,root[1]/1000)
-    to_origin = ( -5.692, -6.56, 3.972 )
-    root = (root[0] + to_origin[0],root[1] + to_origin[1], -root[2] + to_origin[2])
-    bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
-    somaSphere = bpy.context.active_object
-    somaSphere.name = neuron["id"] + "_Soma"
-    somaSphere.data.materials.append(axCopy)
-    somaSize = scene["settings"]["somaSize"]/1000
-    somaSphere.dimensions=((somaSize,somaSize,somaSize))
-    somaSphere.data.polygons[0].use_smooth= True
     if os.path.isfile(dendFile):
         [dend,root] = IM.importSwc(dendFile, dendBev)
-        dendCopy = dendMat.copy()
+        dendCopy = axonMat.copy()
         dend.data.materials.append(dendCopy)
         dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
-
+    # Soma.
+    soma = IM.createSoma(root,neuron["id"],scene["settings"]["somaSize"])
+    soma.data.materials.append(dendCopy)
+    
 # Import Anatomy
-scene["anatomy"] = list(scene["anatomy"])
-print(type(scene["anatomy"]))
-if (len(scene["anatomy"])>1):
-    for area in scene["anatomy"]:
-        print(area)
-        obj = IM.HortaObj(meshFolder, area["acronym"])
-        anaCopy = anaMat.copy()
-        obj.data.materials.append(anaCopy)
-        anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
-else:
-    obj = IM.HortaObj(meshFolder, scene["anatomy"][0]["acronym"])
+counter = 0
+for area in areas:
+    counter = counter+1
+    print('Area {} of {}'.format(counter,len(areas)))
+    obj = IM.HortaObj(meshFolder, area["acronym"])
     anaCopy = anaMat.copy()
     obj.data.materials.append(anaCopy)
-    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(scene["anatomy"][0]["color"]) + (1,)
-        
-    
+    anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
+
+print("Done!")
 
 
 
