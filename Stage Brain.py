@@ -22,5 +22,4 @@ folders["swcFolder"] = "Z:\\neuronSwcs\\"
 
 # Stage Blender
 imp.reload(StageBlender)
-scene = json.load(open(sessionFile))
-StageBlender.StageSession(scene,display,folders)
+StageBlender.StageSession(json.load(open(sessionFile)),display,folders)
