@@ -9,6 +9,10 @@ from pprint import pprint
 # Current Session
 scene = json.load(open('C:\\Users\\winnubstj\\Desktop\\Blender test\\session1.json'))
 brainColor = [1,1,1]
+axonWidth = 10
+dendWidth = 15
+somaSize = 100
+
 slicePlaneFlag = True
 
 # Folder locations.
@@ -59,21 +63,20 @@ camS = IM.CreateCam("Sagittal Camera",[-50,0,0],[radians(-90),radians(180), radi
 camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-90)],20)
 camO = IM.CreateCam("ObliqueCamera",[-50,-50,50],[radians(55),0, radians(-45)],20)
 
-# Create bezier circle for axons.
+# Create bezier circles
+# Axons.
 bpy.ops.curve.primitive_bezier_circle_add()
 axBev = bpy.context.active_object
 axBev.name = "AxonBevel"
-rad = scene["settings"]["axonWidth"]
-axBev.scale = ((rad,rad,rad))
+axBev.scale = ((axonWidth,axonWidth,axonWidth))
 axBev.hide =True
 axBev.hide_render = True
 axBev.select = False
-# dendrites.
+# Dendrites.
 bpy.ops.curve.primitive_bezier_circle_add()
 dendBev = bpy.context.active_object
 dendBev.name = "DendBevel"
-rad = scene["settings"]["dendWidth"]
-dendBev.scale = ((rad,rad,rad))
+dendBev.scale = ((dendWidth,dendWidth,dendWidth))
 dendBev.hide =True
 dendBev.hide_render = True
 dendBev.select = False
@@ -100,7 +103,7 @@ for neuron in neurons:
         dend.data.materials.append(dendCopy)
         dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
     # Soma.
-    soma = IM.createSoma(root,neuron["id"],scene["settings"]["somaSize"])
+    soma = IM.createSoma(root,neuron["id"],somaSize)
     soma.data.materials.append(dendCopy)
     
 # Import Anatomy
