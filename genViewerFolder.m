@@ -98,6 +98,7 @@ ind = [ind;712]; %add whole brain just in case.
 anatomy = struct();
 counter = 0;
 for iArea = 1:length(ind)
+   fprintf('\nWriting Area %i\\%i',iArea,length(ind));
    cArea = ind(iArea);
    if cArea~=712
        counter = counter+1;
@@ -105,7 +106,7 @@ for iArea = 1:length(ind)
        anatomy(counter).color = Session.structProps(iArea).FaceColor;
    end
    % write obj.
-   dimOrder = [1,3,2];
+   dimOrder = [1,2,3];
     % get Mesh Info.
     v = allenMesh(cArea).v(:,dimOrder);
     vn = allenMesh(cArea).vn(:,dimOrder);
@@ -116,7 +117,7 @@ for iArea = 1:length(ind)
     nameFile = strrep(nameFile,'\','-');
     nameFile = strrep(nameFile,'/','-');
     nameFile = strrep(nameFile,',','.');
-    fOut = fopen(fullfile(outputFolder,[nameFile,'.obj']),'w');
+    fOut = fopen(fullfile(meshFolder,[nameFile,'.obj']),'w');
     
     % Write obj.
     outputStr = '';
@@ -129,7 +130,6 @@ for iArea = 1:length(ind)
     outputStr = [outputStr,sprintf('# Compartment color: 0x%s \n', allenMesh(cArea).color)];
     outputStr = [outputStr,sprintf('# graph order: %i \n', allenMesh(cArea).graph_order)];
     outputStr = [outputStr,sprintf('# atlas id: %i \n', allenMesh(cArea).atlas_id)];
-    outputStr = [outputStr,sprintf('# Created using inverted transform\n')];
     outputStr = [outputStr,sprintf('# Im fine!\n')];
     outputStr = [outputStr,sprintf('# How are you?\n')];
     outputStr = [outputStr,sprintf('# List of [x, y, z, w] geometric vertices:\n')];
@@ -150,11 +150,16 @@ end
 data = struct('neurons',neurons,...
     'anatomy',anatomy);
 
-%% Write.
+%% Write session info file.
 text = jsonencode(data);
-fid = fopen(Inputs.OutputFile,'w');
+fid = fopen(fullfile(Inputs.OutputFolder,'session_info.json'),'w');
 fprintf(fid,text);
 fclose(fid);
+
+%% Copy staging script.
+[mainFolder,~,~] = fileparts(which('genViewerFolder'));
+copyfile(fullfile(mainFolder,'Stage Brain.py'),fullfile(Inputs.OutputFolder));
+
 
 end
 

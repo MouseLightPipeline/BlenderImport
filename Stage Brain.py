@@ -1,3 +1,4 @@
+import os
 import bpy
 import json
 import StageBlender
@@ -15,5 +16,4 @@ display["slicePlaneFlag"] = True
 
 # Stage Blender
 imp.reload(StageBlender)
-print(os.path.dirname(bpy.context.space_data.text.filepath))
-StageBlender.StageSession(os.path.dirname(bpy.context.space_data.text.filepath,display)
+StageBlender.StageSession(os.path.dirname(bpy.context.space_data.text.filepath),display)

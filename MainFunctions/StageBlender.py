@@ -14,8 +14,13 @@ def StageSession(sessionFolder,display):
 	print("Im here!")
 	# Get main repo folder.
 	mainFolder = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+
+	# set folders
+	folders = {}
+	folders["meshFolder"] = os.path.join(sessionFolder,"meshes")
+	folders["swcFolder"] = os.path.join(sessionFolder,"swcs")
 	# Load scene info.
-	scene = json.load(open(os.path.join(sessionFolder,'scene.json')))
+	scene = json.load(open(os.path.join(sessionFolder,'session_info.json')))
 	imp.reload(IM) # So you can change script on the fly.
 
 	# Set Cycles Render.
