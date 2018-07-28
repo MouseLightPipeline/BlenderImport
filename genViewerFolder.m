@@ -69,9 +69,9 @@ for i =1:size(names,2)
         swc = [ swc(:,5),zeros(size(swc,1),1),swc(:,1:3),ones(size(swc,1),1),swc(:,4)];
         % make node type list.
         swc(1,2) = 1;
-        [N,edges] = histcounts(swc(:,7),[1:size(swc,1)]);
-        swc(find(N>1),2) = 5;
-        swc(find(N==0),2) = 6;
+        [N,~] = histcounts(swc(:,7),[1:size(swc,1)]);
+        swc(N>1,2) = 5;
+        swc(N==0,2) = 6;
         % generate output name
         if strcmpi(type,'a')
             typeName = 'axon';
@@ -94,6 +94,10 @@ end
 
 %% get Area's
 ind = find(Session.visibleStructures);
+actStruct = find(Session.activeStructures);
+indAct = ismember(actStruct,ind);
+colors = cat(1,Session.structProps.FaceColor);
+colors = colors(indAct,:);
 ind = [ind;712]; %add whole brain just in case.
 anatomy = struct();
 counter = 0;
@@ -103,7 +107,7 @@ for iArea = 1:length(ind)
    if cArea~=712
        counter = counter+1;
        anatomy(counter).acronym = allenMesh(cArea).acronym;
-       anatomy(counter).color = Session.structProps(iArea).FaceColor;
+       anatomy(counter).color = colors(iArea,:);
    end
    % write obj.
    dimOrder = [1,2,3];
