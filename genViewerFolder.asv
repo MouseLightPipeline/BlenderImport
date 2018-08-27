@@ -41,7 +41,8 @@ fprintf('\nLoading Anatomy Info..');
 load(Inputs.MeshFile);
 
 %% get visible Neurons.
-indVis = [Session.Neurons.Visibility];
+% indVis = [Session.Neurons.Visibility]
+indVis = strcmpi({Session.Neurons.Visible};
 Session.Neurons = Session.Neurons(indVis);
 names = {Session.Neurons.Name};
 names = cellfun(@(x) x(1:6),names,'UniformOutput',false);
@@ -95,9 +96,9 @@ end
 %% get Area's
 ind = find(Session.visibleStructures);
 actStruct = find(Session.activeStructures);
-indAct = ismember(actStruct
+indAct = ismember(actStruct,ind);
 colors = cat(1,Session.structProps.FaceColor);
-colors = colors(ind,:);
+colors = colors(indAct,:);
 ind = [ind;712]; %add whole brain just in case.
 anatomy = struct();
 counter = 0;
@@ -107,7 +108,7 @@ for iArea = 1:length(ind)
    if cArea~=712
        counter = counter+1;
        anatomy(counter).acronym = allenMesh(cArea).acronym;
-       anatomy(counter).color = Session.structProps(iArea).FaceColor;
+       anatomy(counter).color = colors(iArea,:);
    end
    % write obj.
    dimOrder = [1,2,3];

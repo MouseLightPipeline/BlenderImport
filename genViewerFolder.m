@@ -41,7 +41,7 @@ fprintf('\nLoading Anatomy Info..');
 load(Inputs.MeshFile);
 
 %% get visible Neurons.
-indVis = [Session.Neurons.Visibility];
+indVis = strcmpi({Session.Neurons.Visible},'on');
 Session.Neurons = Session.Neurons(indVis);
 names = {Session.Neurons.Name};
 names = cellfun(@(x) x(1:6),names,'UniformOutput',false);
