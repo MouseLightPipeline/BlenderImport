@@ -9,6 +9,7 @@ display = {}
 
 # Display Settings.
 display["brainColor"] = [1,1,1]
+display["BackgroundColor"] = [0,0,0]
 display["axonWidth"] = 20
 display["dendWidth"] = 25
 display["somaSize"] = 25

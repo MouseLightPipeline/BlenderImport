@@ -43,6 +43,44 @@ def StageSession(sessionFolder,display):
 	axonMat = bpy.data.materials.get("AxonMaterial")
 	anaMat = bpy.data.materials.get("AnatomyMaterial")
 
+	# Setup Composite Background.
+	# Switch on nodes and get references.
+	bpy.data.scenes["Scene"].use_nodes = True
+	tree = bpy.context.scene.node_tree
+
+	# clear default nodes
+	for node in tree.nodes:
+	    tree.nodes.remove(node)
+	# Create RGB Background Color Node.
+	RGBNode = tree.nodes.new(type="CompositorNodeRGB")
+	RGBNode.location = 200,800
+
+	# Create render Layers.
+	RenderNode = tree.nodes.new(type="CompositorNodeRLayers")
+	RenderNode.location = 200,400
+
+	# Create Alpha Over Node.
+	AlphaNode = tree.nodes.new(type="CompositorNodeAlphaOver")
+	AlphaNode.location = 400,600
+	AlphaNode.use_premultiply = True
+
+	# Create compositer
+	CompositeNode = tree.nodes.new(type="CompositorNodeComposite")
+	CompositeNode.location = 600,600
+
+	# link nodes
+	links = tree.links
+	linkRGB = links.new(RGBNode.outputs[0],AlphaNode.inputs[1])
+	linkRender = links.new(RenderNode.outputs[0],AlphaNode.inputs[2])
+	linkAlpha = links.new(AlphaNode.outputs[0],CompositeNode.inputs[0])
+
+	# Check if background color key excists (for backwards compatibility)
+	if "backgroundColor" in display:
+		RGBNode.outputs[0].default_value = tuple(display["backgroundColor"]) + (1,)
+	else:
+		# set to defualt transparency but leave "plumbing" intact.
+		links.new(RenderNode.outputs[0],CompositeNode.inputs[0])
+
 	# Brain Mesh.
 	#Load (Use Horta OBJs)
 	rootObj = IM.HortaObj(folders["meshFolder"], "root")
