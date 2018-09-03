@@ -146,12 +146,12 @@ def StageSession(sessionFolder,display):
 	counter = 0
 	for area in areas:
 		counter = counter+1
-		print('Area {} of {}'.format(counter,len(areas)))
-		obj = IM.HortaObj(folders["meshFolder"], area["acronym"])
-		anaCopy = anaMat.copy()
-		obj.data.materials.append(anaCopy)
-		anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
-
+		if "acronym" in area:
+			print('Area {} of {}'.format(counter,len(areas)))
+			obj = IM.HortaObj(folders["meshFolder"], area["acronym"])
+			anaCopy = anaMat.copy()
+			obj.data.materials.append(anaCopy)
+			anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
 	print("Done!")
 
 
