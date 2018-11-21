@@ -3,6 +3,7 @@ import os
 import sys
 from math import radians
 import imp
+import time
 import json
 from pprint import pprint
 import ImportBlender as IM
@@ -135,6 +136,7 @@ def StageSession(sessionFolder,display):
 	counter = 0
 	for neuron in neurons:
 		counter = counter+1
+		start_time = time.time()
 		print('Neuron {} of {}'.format(counter,len(neurons)))
 		# Axon.
 		axFile = os.path.join(folders["swcFolder"],'{0}_axon.swc'.format(neuron["id"]))
@@ -181,6 +183,12 @@ def StageSession(sessionFolder,display):
 					cBool = axM.modifiers.new(type="BOOLEAN", name="bool area")
 					cBool.object = cArea[0]
 					cBool.operation = 'DIFFERENCE'
+			# apply difference modifiers.
+			bpy.ops.object.select_all(action='DESELECT')
+			bpy.context.scene.objects.active = axM
+			for modifier in axM.modifiers:
+				bpy.ops.object.modifier_apply(modifier=modifier.name)
+
 		# Dendrite.
 		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite.swc'.format(neuron["id"]))
 		if os.path.isfile(dendFile):
@@ -191,4 +199,5 @@ def StageSession(sessionFolder,display):
 		# Soma.
 		soma = IM.createSoma(root,neuron["id"],display["somaSize"])
 		soma.data.materials.append(dendCopy)
-		
+		elapsedTime = time.time()-start_time
+		print("Elapsed Time: %.2f secs" % elapsedTime)
