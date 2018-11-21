@@ -12,7 +12,6 @@ def testBlend():
 	print("HELLO!")
 
 def StageSession(sessionFolder,display):
-	print("Im here!")
 	# Get main repo folder.
 	mainFolder = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -190,12 +189,12 @@ def StageSession(sessionFolder,display):
 				bpy.ops.object.modifier_apply(modifier=modifier.name)
 
 		# Dendrite.
-		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite'.format(neuron["id"]))
+		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite.swc'.format(neuron["id"]))
+		dendCopy = axonMat.copy()
+		dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
 		if os.path.isfile(dendFile):
 			[dend,root] = IM.importSwc(dendFile, dendBev)
-			dendCopy = axonMat.copy()
-			dend.data.materials.append(dendCopy)
-			dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+			dend.data.materials.append(dendCopy)	
 		# Soma.
 		soma = IM.createSoma(root,neuron["id"],display["somaSize"])
 		soma.data.materials.append(dendCopy)
