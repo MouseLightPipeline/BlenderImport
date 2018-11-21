@@ -26,11 +26,11 @@ if os.path.isdir(outputFolder)==False:
     os.makedirs(outputFolder)
 
 # Turn off all objects.
-RenderObj("Area_*",True)
+RenderObj("*",True)
 
 # turn on areas.
 for area in areas:
-    RenderObj("%s*" % area,False)
+    RenderObj("Area_%s*" % area,False)
     
 # Go through neurons.
 count = 0
