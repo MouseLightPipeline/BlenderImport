@@ -26,18 +26,17 @@ if os.path.isdir(outputFolder)==False:
     os.makedirs(outputFolder)
 
 # Turn off all objects.
-RenderObj("*",True)
+RenderObj("Area_*",True)
 
 # turn on areas.
 for area in areas:
-    print(area)
-    RenderObj("Area_%s*" % area,False)
+    RenderObj("%s*" % area,False)
     
 # Go through neurons.
 count = 0
 for neuron in neuronList:
     count =count+1
-    print("Neuron [%i\\%i]" % (count, len(neuronList)))
+    print("Neuron %s [%i\\%i]" % (neuron, count, len(neuronList)))
     # Turn on neuron
     RenderObj("%s*" % neuron,False)
     # Render
