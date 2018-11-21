@@ -13,6 +13,7 @@ def HortaObj(folderLoc,anatomyName):
 	#Load (Use Horta OBJs)
 	bpy.ops.import_scene.obj(filepath=fileLoc[0])
 	obj= bpy.context.selected_objects[0]
+	obj.name = "Area_%s" % anatomyName
 	obj = bpy.data.objects[obj.name]
 	#scale
 	#bpy.ops.transform.resize(value=(0.001,0.001,0.001))

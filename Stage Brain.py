@@ -13,7 +13,8 @@ display["backgroundColor"] = [0,0,0]
 display["axonWidth"] = 20
 display["dendWidth"] = 25
 display["somaSize"] = 25
-display["slicePlaneFlag"] = True
+display["slicePlaneFlag"] = False
+display["sliceAxonbyArea"] = True
 
 # Stage Blender
 imp.reload(StageBlender)

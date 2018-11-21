@@ -86,6 +86,19 @@ def StageSession(sessionFolder,display):
 	rootObj = IM.HortaObj(folders["meshFolder"], "root")
 	rootObj.data.materials.append(rootMat)
 
+	# Import Anatomy
+	areas = scene["anatomy"] if isinstance(scene["anatomy"],list) else [scene["anatomy"]]	
+	counter = 0
+	for area in areas:
+		counter = counter+1
+		if "acronym" in area:
+			print('Area {} of {}'.format(counter,len(areas)))
+			obj = IM.HortaObj(folders["meshFolder"], area["acronym"])
+			anaCopy = anaMat.copy()
+			obj.data.materials.append(anaCopy)
+			anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
+	print("Done!")
+
 	# Import slice plane
 	if display["slicePlaneFlag"]:
 		blendfile = os.path.join(mainFolder, "Materials","cache.blend")
@@ -119,7 +132,6 @@ def StageSession(sessionFolder,display):
 
 	# Import SWC
 	neurons = scene["neurons"] if isinstance(scene["neurons"],list) else [scene["neurons"]]
-	areas = scene["anatomy"] if isinstance(scene["anatomy"],list) else [scene["anatomy"]]
 	counter = 0
 	for neuron in neurons:
 		counter = counter+1
@@ -131,6 +143,44 @@ def StageSession(sessionFolder,display):
 			axCopy = axonMat.copy()
 			axon.data.materials.append(axCopy)
 			axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+		# Make sliced axon if requested.
+		if display["sliceAxonbyArea"]:
+			print("Slicing..")
+			for area in areas:
+				bpy.ops.object.select_all(action='DESELECT')
+				bpy.context.scene.objects.active = None
+				if "acronym" in area:
+					# new mesh obj.
+					axM = axon.to_mesh(bpy.context.scene, False, 'PREVIEW')
+					axM = bpy.data.objects.new('{0}_axon_{1}'.format(neuron["id"],area["acronym"]), axM)
+					bpy.context.scene.objects.link(axM)
+					axM.matrix_world = axon.matrix_world
+					# find area
+					bpy.ops.object.select_pattern(pattern="Area_%s*" % area["acronym"])
+					cArea = bpy.context.selected_objects
+					# add boolean
+					cBool = axM.modifiers.new(type="BOOLEAN", name="bool area")
+					cBool.object = cArea[0]
+					cBool.operation = 'INTERSECT'
+					# apply boolean.
+					bpy.context.scene.objects.active = axM
+					bpy.ops.object.modifier_apply(modifier="bool area", apply_as='DATA')
+			# Make no area axon.
+			axM = axon.to_mesh(bpy.context.scene, False, 'PREVIEW')
+			axM = bpy.data.objects.new('{0}_axon_outside'.format(neuron["id"]), axM)
+			bpy.context.scene.objects.link(axM)
+			bpy.context.scene.objects.unlink(axon)
+			axM.name = "%s_axon" % neuron["id"]
+			axM.matrix_world = axon.matrix_world
+			for area in areas:
+				bpy.ops.object.select_all(action='DESELECT')
+				bpy.context.scene.objects.active = None
+				if "acronym" in area:
+					bpy.ops.object.select_pattern(pattern="Area_%s" % area["acronym"])
+					cArea = bpy.context.selected_objects
+					cBool = axM.modifiers.new(type="BOOLEAN", name="bool area")
+					cBool.object = cArea[0]
+					cBool.operation = 'DIFFERENCE'
 		# Dendrite.
 		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite.swc'.format(neuron["id"]))
 		if os.path.isfile(dendFile):
@@ -142,17 +192,3 @@ def StageSession(sessionFolder,display):
 		soma = IM.createSoma(root,neuron["id"],display["somaSize"])
 		soma.data.materials.append(dendCopy)
 		
-	# Import Anatomy
-	counter = 0
-	for area in areas:
-		counter = counter+1
-		if "acronym" in area:
-			print('Area {} of {}'.format(counter,len(areas)))
-			obj = IM.HortaObj(folders["meshFolder"], area["acronym"])
-			anaCopy = anaMat.copy()
-			obj.data.materials.append(anaCopy)
-			anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
-	print("Done!")
-
-
-

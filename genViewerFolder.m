@@ -29,8 +29,10 @@ end
 %% Make output folders.
 swcFolder = fullfile(Inputs.OutputFolder,'swcs');
 meshFolder = fullfile(Inputs.OutputFolder,'meshes');
+renderFolder = fullfile(Inputs.OutputFolder,'renders');
 if ~isfolder(swcFolder), mkdir(swcFolder); end
 if ~isfolder(meshFolder), mkdir(meshFolder); end
+if ~isfolder(renderFolder), mkdir(renderFolder); end
 
 %% Load session.
 fprintf('\nLoading Session..');
@@ -163,7 +165,7 @@ fclose(fid);
 %% Copy staging script.
 [mainFolder,~,~] = fileparts(which('genViewerFolder'));
 copyfile(fullfile(mainFolder,'Stage Brain.py'),fullfile(Inputs.OutputFolder));
-
+copyfile(fullfile(mainFolder,'renderMacro.py'),fullfile(Inputs.OutputFolder));
 
 end
 
