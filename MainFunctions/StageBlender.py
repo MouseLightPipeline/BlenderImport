@@ -97,7 +97,24 @@ def StageSession(sessionFolder,display):
 			anaCopy = anaMat.copy()
 			obj.data.materials.append(anaCopy)
 			anaCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
+			if display["sliceAxonbyArea"]:
+				obj.hide_render = True
 	print("Done!")
+
+	# create standard materials for slice by area.
+	if display["sliceAxonbyArea"]:
+		axMatDefault = axonMat.copy()
+		axMatDefault.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(display["brainColor"]) + (1,)
+		axMatDefault.name = "Mat_Axon"
+		dendMatDefault = axonMat.copy()
+		dendMatDefault.node_tree.nodes.get("RGB").outputs[0].default_value = tuple([1,0,0]) + (1,)	
+		dendMatDefault.name = "Mat_Dend"
+		axAreas = {}
+		for area in areas:
+			axTemp = axonMat.copy()
+			axTemp.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(area["color"]) + (1,)
+			axTemp.name = "Mat_%s" % area["acronym"]
+			axAreas[area["acronym"]]=axTemp
 
 	# Import slice plane
 	if display["slicePlaneFlag"]:
@@ -141,9 +158,12 @@ def StageSession(sessionFolder,display):
 		axFile = os.path.join(folders["swcFolder"],'{0}_axon.swc'.format(neuron["id"]))
 		if os.path.isfile(axFile):
 			[axon,root] = IM.importSwc(axFile, axBev)
-			axCopy = axonMat.copy()
-			axon.data.materials.append(axCopy)
-			axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+			if display["sliceAxonbyArea"]:
+				axon.data.materials.append(axMatDefault)
+			else:
+				axCopy = axonMat.copy()
+				axon.data.materials.append(axCopy)
+				axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
 		# Make sliced axon if requested.
 		if display["sliceAxonbyArea"]:
 			print("Slicing..")
@@ -156,6 +176,7 @@ def StageSession(sessionFolder,display):
 					axM = bpy.data.objects.new('{0}_axon_{1}'.format(neuron["id"],area["acronym"]), axM)
 					bpy.context.scene.objects.link(axM)
 					axM.matrix_world = axon.matrix_world
+					axM.data.materials[0] = axAreas[area["acronym"]]
 					# find area
 					bpy.ops.object.select_pattern(pattern="Area_%s*" % area["acronym"])
 					cArea = bpy.context.selected_objects
@@ -190,8 +211,11 @@ def StageSession(sessionFolder,display):
 
 		# Dendrite.
 		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite.swc'.format(neuron["id"]))
-		dendCopy = axonMat.copy()
-		dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
+		if display["sliceAxonbyArea"]:
+			dendCopy = dendMatDefault
+		else:
+			dendCopy = axonMat.copy()
+			dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
 		if os.path.isfile(dendFile):
 			[dend,root] = IM.importSwc(dendFile, dendBev)
 			dend.data.materials.append(dendCopy)	
