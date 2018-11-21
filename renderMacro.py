@@ -3,7 +3,7 @@ import os
 
 def RenderObj(pattern,hide):
     bpy.ops.object.select_all(action='DESELECT')
-    bpy.ops.object.select_pattern(pattern="%s_*" % pattern)
+    bpy.ops.object.select_pattern(pattern="%s*" % pattern)
     obs = bpy.context.selected_objects
     for ob in obs:
         ob.hide_render = hide
@@ -30,7 +30,8 @@ RenderObj("*",True)
 
 # turn on areas.
 for area in areas:
-    RenderObj("%s*" % area,False)
+    print(area)
+    RenderObj("Area_%s*" % area,False)
     
 # Go through neurons.
 count = 0

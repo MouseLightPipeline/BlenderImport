@@ -190,7 +190,7 @@ def StageSession(sessionFolder,display):
 				bpy.ops.object.modifier_apply(modifier=modifier.name)
 
 		# Dendrite.
-		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite.swc'.format(neuron["id"]))
+		dendFile = os.path.join(folders["swcFolder"],'{0}_dendrite'.format(neuron["id"]))
 		if os.path.isfile(dendFile):
 			[dend,root] = IM.importSwc(dendFile, dendBev)
 			dendCopy = axonMat.copy()
