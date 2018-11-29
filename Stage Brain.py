@@ -12,6 +12,7 @@ display["brainColor"] = [1,1,1]
 display["backgroundColor"] = [0,0,0]
 display["shadeWeight"] = 0
 display["shadeColor"] = [1,1,1]
+display["axonOpacity"] = 1
 display["axonWidth"] = 20
 display["dendWidth"] = 25
 display["somaSize"] = 25
