@@ -41,16 +41,12 @@ def StageSession(sessionFolder,display):
 	rootMat.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(display["brainColor"]) + (1,)
 	dendMat = bpy.data.materials.get("DendriteMaterial")
 	anaMat = bpy.data.materials.get("AnatomyMaterial")
-	# check shade.
-	if (display["shadeWeight"]>0) | (display["axonOpacity"]<1) :
-		axonMat = bpy.data.materials.get("AxonMaterialShade")
-		shadeGroup = bpy.data.node_groups ["ShadeGroup"]
-		opacityGroup = bpy.data.node_groups ["OpacityGroup"]
-		shadeGroup.nodes["ShadeWeight"].inputs[0].default_value = display["shadeWeight"]
-		shadeGroup.nodes["ShadeColor"].inputs[0].default_value = tuple(display["shadeColor"]) + (1,)
-		opacityGroup.nodes["OpacityValue"].inputs[0].default_value = display["axonOpacity"]
-	else:
-		axonMat = bpy.data.materials.get("AxonMaterial")
+	axonMat = bpy.data.materials.get("AxonMaterial")
+	shadeGroup = bpy.data.node_groups ["ShadeGroup"]
+	opacityGroup = bpy.data.node_groups ["OpacityGroup"]
+	shadeGroup.nodes["ShadeWeight"].inputs[0].default_value = display["shadeWeight"]
+	shadeGroup.nodes["ShadeColor"].inputs[0].default_value = tuple(display["shadeColor"]) + (1,)
+	opacityGroup.nodes["OpacityValue"].inputs[0].default_value = display["axonOpacity"]
 		
 	# Setup Composite Background.
 	# Switch on nodes and get references.
