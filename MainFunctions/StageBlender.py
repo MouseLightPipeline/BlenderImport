@@ -40,9 +40,15 @@ def StageSession(sessionFolder,display):
 	rootMat = bpy.data.materials.get("RootMaterial")
 	rootMat.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(display["brainColor"]) + (1,)
 	dendMat = bpy.data.materials.get("DendriteMaterial")
-	axonMat = bpy.data.materials.get("AxonMaterial")
 	anaMat = bpy.data.materials.get("AnatomyMaterial")
-
+	# check shade.
+	if display["shadeWeight"]>0:
+		axonMat = bpy.data.materials.get("AxonMaterialShade")
+		axonMat.node_tree.nodes.get("RGB-Shade").outputs[0].default_value = tuple(display["shadeColor"]) + (1,)
+		axonMat.node_tree.nodes.get("Layer Weight").inputs[0].default_value = display["shadeWeight"]
+	else:
+		axonMat = bpy.data.materials.get("AxonMaterial")
+		
 	# Setup Composite Background.
 	# Switch on nodes and get references.
 	bpy.data.scenes["Scene"].use_nodes = True
