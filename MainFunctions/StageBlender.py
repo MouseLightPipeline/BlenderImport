@@ -42,6 +42,7 @@ def StageSession(sessionFolder,display):
 	dendMat = bpy.data.materials.get("DendriteMaterial")
 	anaMat = bpy.data.materials.get("AnatomyMaterial")
 	axonMat = bpy.data.materials.get("AxonMaterial")
+	# set group axon properties.
 	shadeGroup = bpy.data.node_groups ["ShadeGroup"]
 	opacityGroup = bpy.data.node_groups ["OpacityGroup"]
 	shadeGroup.nodes["ShadeWeight"].inputs[0].default_value = display["shadeWeight"]
@@ -111,7 +112,7 @@ def StageSession(sessionFolder,display):
 		axMatDefault = axonMat.copy()
 		axMatDefault.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(display["brainColor"]) + (1,)
 		axMatDefault.name = "Mat_Axon"
-		dendMatDefault = axonMat.copy()
+		dendMatDefault = dendMat.copy()
 		dendMatDefault.node_tree.nodes.get("RGB").outputs[0].default_value = tuple([1,0,0]) + (1,)	
 		dendMatDefault.name = "Mat_Dend"
 		axAreas = {}
@@ -219,7 +220,7 @@ def StageSession(sessionFolder,display):
 		if display["sliceAxonbyArea"]:
 			dendCopy = dendMatDefault
 		else:
-			dendCopy = axonMat.copy()
+			dendCopy = dendMat.copy()
 			dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
 		if os.path.isfile(dendFile):
 			[dend,root] = IM.importSwc(dendFile, dendBev)
