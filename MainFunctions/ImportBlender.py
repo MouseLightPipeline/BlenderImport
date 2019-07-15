@@ -21,18 +21,28 @@ def HortaObj(folderLoc,anatomyName):
 	obj.rotation_euler = (radians(-90), 0, 0 )
 	obj.location = ( -5.692, -6.56, 3.972 )
 	bpy.ops.object.select_all(action='DESELECT')
-	obj.select = True
-	bpy.context.scene.objects.active = obj
+	if (2,80,0)> bpy.app.version:
+		obj.select = True
+		bpy.context.scene.objects.active = obj
+	else:
+		obj.select_set(True)
+		bpy.context.view_layer.objects.active = obj
+	
 	bpy.ops.object.transform_apply(location = True, scale = True, rotation = True)
 	bpy.ops.object.select_all(action='DESELECT')
 	obj.data.use_auto_smooth = 0
 	obj.show_transparent = 1
+	bpy.ops.object.material_slot_remove()
 	return obj
 
 def CreateCam(name,pos,rot,scale):
-	bpy.ops.object.camera_add(view_align=False,
-						  location=pos,
-						  rotation=rot)
+	if (2,80,0)> bpy.app.version:
+		bpy.ops.object.camera_add(view_align=False,
+							  location=pos,
+							  rotation=rot)
+	else:
+		bpy.ops.object.add(type='CAMERA',location=pos,
+					  rotation=rot)
 	cam = bpy.context.object
 	cam.name = name
 	cam.data.type = 'ORTHO'
@@ -116,9 +126,12 @@ def importSwc(filePath, bevelObj):
 		objectdata.scale=((0.001,0.001,0.001))
 		objectdata.location = ( -5.692, -6.56, 3.972 )
 		objectdata.rotation_euler = (radians(-90), 0, 0 )
-		objectdata.data.use_fill_caps = True
+		objectdata.data.use_fill_caps = False
 
-		bpy.context.scene.objects.link(objectdata)
+		if (2,80,0)> bpy.app.version:
+			bpy.context.scene.objects.link(objectdata)
+		else:
+			bpy.context.scene.collection.objects.link(objectdata)
  
 		polyline = curvedata.splines.new('POLY')
 		polyline.points.add(nodes.shape[0]-1)
@@ -147,15 +160,25 @@ def importSwc(filePath, bevelObj):
 
 
 	bpy.ops.object.select_pattern(pattern=fileName+"Curve*")
-	bpy.context.scene.objects.active = objectdata
-	bpy.ops.object.join()
-	objectdata.name = fileName
-	objectdata.select = False
+	if (2,80,0)> bpy.app.version:
+		bpy.context.scene.objects.active = objectdata
+		bpy.ops.object.join()
+		objectdata.name = fileName
+		objectdata.select = False
+	else:
+		bpy.context.view_layer.objects.active = objectdata
+		bpy.ops.object.join()
+		objectdata.name = fileName
+		objectdata.select_set(False)
+
 	 
 	# Group together.
 	bpy.ops.object.select_pattern(pattern=fileName+"*")
 	# Apply transform.
-	bpy.context.scene.objects.active = objectdata
+	if (2,80,0)> bpy.app.version:
+		bpy.context.scene.objects.active = objectdata
+	else:
+		bpy.context.view_layer.objects.active = objectdata
 	bpy.ops.object.transform_apply(location = True, scale = True, rotation = True)
 	bpy.ops.object.select_all(action='DESELECT')
 	return objectdata,root
@@ -164,7 +187,10 @@ def createSoma(root,name,somaSize):
 	root = (root[0]/1000,root[2]/1000,root[1]/1000)
 	to_origin = ( -5.692, -6.56, 3.972 )
 	root = (root[0] + to_origin[0],root[1] + to_origin[1], -root[2] + to_origin[2])
-	bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
+	if (2,80,0)> bpy.app.version:
+		bpy.ops.mesh.primitive_uv_sphere_add(segments=34,size=20,location=(root[0], root[1], root[2]))
+	else:
+		bpy.ops.mesh.primitive_uv_sphere_add(segments=34,radius=20/2,location=(root[0], root[1], root[2]))
 	somaSphere = bpy.context.active_object
 	somaSphere.name = name + "_soma"
 	somaSize = somaSize/1000

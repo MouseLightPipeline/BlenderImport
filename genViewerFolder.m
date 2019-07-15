@@ -1,8 +1,9 @@
-function [outputArg1,outputArg2] = genViewerFolder(inputFile,varargin)
+function genViewerFolder(inputFile,varargin)
 %% Parse input.
 p = inputParser;
 p.addOptional('inputFile',[],@(x) ischar(x));
 p.addParameter('OutputFolder',[],@ischar);
+p.addParameter('Resample',[],@isnumeric);
 p.addParameter('MeshFile',fullfile('//dm11/mousebrainmicro/Allen_compartments/Matlab/allenMeshCorrectedAxis.mat'),@(x) ischar(x));
 p.parse(varargin{:});
 Inputs = p.Results;
@@ -49,50 +50,26 @@ names = {Session.Neurons.Name};
 names = cellfun(@(x) x(1:6),names,'UniformOutput',false);
 [names,ind,~] = unique(names);
 neurons = struct('id','','color',[]);
-for i =1:size(names,2)
-    fprintf('\nWriting Neuron %i\\%i',i,size(names,2));
-    % Settings for neuron.
-    cNeuron = ind(i);
-    name = names{i};
-    color = Session.Neurons(cNeuron).Color;
-    neurons(i).id = name;
-    neurons(i).color = color;
-    % Write swcs.
-    allFields = {Session.Neurons.Name};
-    indNeuron = cellfun(@(x) strcmpi(x(1:6),name),allFields,'UniformOutput',false);
-    indNeuron = find([indNeuron{:}]);
-    % go through matching neurons
-    for iNeuron = 1:size(indNeuron,2)
-        cNeuron = indNeuron(iNeuron);
-        cName = allFields{cNeuron}(1:6);
-        type = allFields{cNeuron}(end);
-        % make swc.
-        swc = Session.Neurons(cNeuron).Nodes;
-        swc = [ swc(:,5),zeros(size(swc,1),1),swc(:,1:3),ones(size(swc,1),1),swc(:,4)];
-        % make node type list.
-        swc(1,2) = 1;
-        [N,~] = histcounts(swc(:,7),[1:size(swc,1)]);
-        swc(N>1,2) = 5;
-        swc(N==0,2) = 6;
-        % generate output name
-        if strcmpi(type,'a')
-            typeName = 'axon';
-        else
-            typeName = 'dendrite';
-        end
-        outputFile = fullfile(swcFolder,...
-            sprintf('%s_%s.swc',cName,typeName));
-        fid = fopen(outputFile,'w');
-        % Header.
-        fprintf(fid,'# ORIGINAL_SOURCE MouseLight Database');
-        fprintf(fid,'\n# OFFSET 0 0 0');
-        fprintf(fid,'\n# COLOR %.4f,%.4f,%.4f',color);
-        fprintf(fid,'\n# GENERATED ON %s',datestr(now,'yy/mm/dd HH:MM'));
-        fprintf(fid,'\n%i %i %.6f  %.6f  %.6f  %.6f %i',swc');
-        fclose(fid);
+if size(names,2)>50
+    poolobj = gcp('nocreate');
+    if (isempty(poolobj))
+        parpool('local',3)
+    end
+    parfor i =1:size(names,2)
+        processNeuron(Session,names,ind,i,Inputs,swcFolder)
+    end
+else
+    for i =1:size(names,2)
+        processNeuron(Session,names,ind,i,Inputs,swcFolder)
     end
 end
 
+%% neuron info.
+for i =1:size(names,2)
+    cNeuron = ind(i);
+    neurons(i).id = names{i};
+    neurons(i).color = Session.Neurons(cNeuron).Color;
+end
 
 %% get Area's
 ind = find(Session.visibleStructures);
@@ -169,3 +146,52 @@ copyfile(fullfile(mainFolder,'renderMacro.py'),fullfile(Inputs.OutputFolder));
 
 end
 
+function processNeuron(Session,names,ind,i,Inputs,swcFolder)
+    fprintf('\nWriting Neuron %i\\%i',i,size(names,2));
+    % Settings for neuron.
+    cNeuron = ind(i);
+    name = names{i};
+    color = Session.Neurons(cNeuron).Color;
+    % Write swcs.
+    allFields = {Session.Neurons.Name};
+    indNeuron = cellfun(@(x) strcmpi(x(1:6),name),allFields,'UniformOutput',false);
+    indNeuron = find([indNeuron{:}]);
+    % go through matching neurons
+    for iNeuron = 1:size(indNeuron,2)
+        cNeuron = indNeuron(iNeuron);
+        cName = allFields{cNeuron}(1:6);
+        type = allFields{cNeuron}(end);
+        % make swc.
+        swc = Session.Neurons(cNeuron).Nodes;
+        swc = [ swc(:,5),zeros(size(swc,1),1),swc(:,1:3),ones(size(swc,1),1),swc(:,4)];
+        % Resample if requested.
+        if ~isempty(Inputs.Resample)
+            [tree] = quickLoadTreeSwc(swc);
+            tree = resample_tree(tree,Inputs.Resample);
+            idpar0 = idpar_tree (tree, '-0'); % vector containing index to direct parent
+            idpar0 (idpar0 == 0) = -1;
+            swc = [(1 : length(tree.X))' zeros(length(tree.X),1) tree.X tree.Y tree.Z tree.D idpar0];
+        end
+        % make node type list.
+        swc(1,2) = 1;
+        [N,~] = histcounts(swc(:,7),[1:size(swc,1)]);
+        swc(N>1,2) = 5;
+        swc(N==0,2) = 6;
+        % generate output name
+        if strcmpi(type,'a')
+            typeName = 'axon';
+        else
+            typeName = 'dendrite';
+        end
+        outputFile = fullfile(swcFolder,...
+            sprintf('%s_%s.swc',cName,typeName));
+        fid = fopen(outputFile,'w');
+        % Header.
+        fprintf(fid,'# ORIGINAL_SOURCE MouseLight Database');
+        fprintf(fid,'\n# OFFSET 0 0 0');
+        fprintf(fid,'\n# COLOR %.4f,%.4f,%.4f',color);
+        fprintf(fid,'\n# GENERATED ON %s',datestr(now,'yy/mm/dd HH:MM'));
+        fprintf(fid,'\n%i %i %.6f  %.6f  %.6f  %.6f %i',swc');
+        fclose(fid);
+    end
+end

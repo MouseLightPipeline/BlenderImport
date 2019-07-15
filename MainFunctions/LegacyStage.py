@@ -7,18 +7,10 @@ import time
 import json
 from pprint import pprint
 import ImportBlender as IM
-import LegacyStage as legacy
-
-def testBlend():
-	print("HELLO!")
 
 def StageSession(sessionFolder,display):
-	# check for older blender versions.
-	if (2,80,0)> bpy.app.version:
-		imp.reload(legacy)
-		legacy.StageSession(sessionFolder,display)
-		return
-
+	print("\nOlder blender version using legacy mode..")
+	print("\nSession folder is: {}\n".format(sessionFolder))
 	# Get main repo folder.
 	mainFolder = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 
@@ -31,22 +23,8 @@ def StageSession(sessionFolder,display):
 	imp.reload(IM) # So you can change script on the fly.
 
 	# Set Cycles Render.
-	bpy.context.scene.render.engine = 'BLENDER_EEVEE'
-	bpy.context.scene.render.film_transparent = True
-
-	# Create collections
-	neuronCol = bpy.data.collections.new('Neurons')
-	bpy.context.scene.collection.children.link(neuronCol)
-	if 'Anatomy' not in bpy.data.collections:
-		bpy.context.scene.collection.children.link(bpy.data.collections.new('Anatomy'))
-	anatomyCol = bpy.data.collections['Anatomy'] 
-	if 'Cameras' not in bpy.data.collections:
-		bpy.context.scene.collection.children.link(bpy.data.collections.new('Cameras'))
-	camCol = bpy.data.collections['Cameras'] 			
-	if 'Bevels' not in bpy.data.collections:
-		bpy.context.scene.collection.children.link(bpy.data.collections.new('Bevels'))
-	bevCol = bpy.data.collections['Bevels'] 		
-
+	bpy.context.scene.render.engine = 'CYCLES'
+	bpy.context.scene.cycles.film_transparent = True # set transparency for easy background change
 
 	# Set world emmission (or lighting)
 	world = bpy.data.worlds['World']
@@ -55,23 +33,14 @@ def StageSession(sessionFolder,display):
 	bg.inputs[0].default_value[:3] = (1, 1, 1)
 	bg.inputs[1].default_value = 1.0
 
-	# Import materials (if necessary).
-	if bpy.data.materials.get("DendriteMaterial") is None:
-		with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache.blend")) as (data_from, data_to):
-			data_to.materials = data_from.materials
-	else:
-		print("Materials already loaded")	
-
-	# set references.
+	# Import materials.
+	with bpy.data.libraries.load(os.path.join(mainFolder, "Materials","cache-legacy.blend")) as (data_from, data_to):
+		data_to.materials = data_from.materials
 	rootMat = bpy.data.materials.get("RootMaterial")
 	rootMat.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(display["brainColor"]) + (1,)
 	dendMat = bpy.data.materials.get("DendriteMaterial")
 	anaMat = bpy.data.materials.get("AnatomyMaterial")
 	axonMat = bpy.data.materials.get("AxonMaterial")
-	rootMat.blend_method = 'BLEND'
-	dendMat.blend_method = 'BLEND'
-	anaMat.blend_method = 'BLEND'
-	axonMat.blend_method = 'BLEND'
 
 	# set group axon properties.
 	shadeGroup = bpy.data.node_groups ["ShadeGroup"]
@@ -120,10 +89,8 @@ def StageSession(sessionFolder,display):
 
 	# Brain Mesh.
 	#Load (Use Horta OBJs)
-	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children["Anatomy"]
-	if "Area_root" not in anatomyCol.objects:
-		rootObj = IM.HortaObj(folders["meshFolder"], "root")
-		rootObj.data.materials.append(rootMat)
+	rootObj = IM.HortaObj(folders["meshFolder"], "root")
+	rootObj.data.materials.append(rootMat)
 
 	# Import Anatomy
 	areas = scene["anatomy"] if isinstance(scene["anatomy"],list) else [scene["anatomy"]]	
@@ -157,49 +124,39 @@ def StageSession(sessionFolder,display):
 
 	# Import slice plane
 	if display["slicePlaneFlag"]:
-		blendfile = os.path.join(mainFolder, "Materials","cache.blend")
+		blendfile = os.path.join(mainFolder, "Materials","cache-legacy.blend")
 		section   = '\\Object\\'
 		directory = blendfile + section
 		bpy.ops.wm.append(filename='Slice plane', directory=directory)
 
 	# Create Cameras
-	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children["Cameras"]
-	if "Coronal Camera" not in camCol.objects:
-		camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
-	if "Sagittal Camera" not in camCol.objects:		
-		camS = IM.CreateCam("Sagittal Camera",[-50,0,0],[radians(-90),radians(180), radians(90)],15)
-	if "Horizontal Camera" not in camCol.objects:			
-		camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-90)],20)
-	if "Oblique Camera" not in camCol.objects:			
-		camO = IM.CreateCam("Oblique Camera",[-50,-50,50],[radians(55),0, radians(-45)],20)
+	camC = IM.CreateCam("Coronal Camera",[0,-50,0],[radians(90), 0, 0],15)
+	camS = IM.CreateCam("Sagittal Camera",[-50,0,0],[radians(-90),radians(180), radians(90)],15)
+	camH = IM.CreateCam("Horizontal Camera",[0,0,50],[0,0, radians(-90)],20)
+	camO = IM.CreateCam("ObliqueCamera",[-50,-50,50],[radians(55),0, radians(-45)],20)
 
 	# Create bezier circles
-	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children["Bevels"]
 	# Axons.
-	if "AxonBevel" not in bevCol.objects:
-		bpy.ops.curve.primitive_bezier_circle_add()
-		axBev = bpy.context.active_object
-		axBev.name = "AxonBevel"
-		axBev.scale = ((display["axonWidth"],display["axonWidth"],display["axonWidth"]))
-		axBev.hide_viewport =True
-		axBev.hide_render = True
-		axBev.select_set(False)
-	axBev = bevCol.objects["AxonBevel"]
+	bpy.ops.curve.primitive_bezier_circle_add()
+	axBev = bpy.context.active_object
+	axBev.name = "AxonBevel"
+	axBev.scale = ((display["axonWidth"],display["axonWidth"],display["axonWidth"]))
+	axBev.hide =True
+	axBev.hide_render = True
+	axBev.select = False
+
+
 	# Dendrites.
-	if "DendBevel" not in bevCol.objects:		
-		bpy.ops.curve.primitive_bezier_circle_add()
-		dendBev = bpy.context.active_object
-		dendBev.name = "DendBevel"
-		dendBev.scale = ((display["dendWidth"],display["dendWidth"],display["dendWidth"]))
-		dendBev.hide_viewport =True
-		dendBev.hide_render = True
-		dendBev.select_set(False)
-	dendBev = bevCol.objects["AxonBevel"]		
+	bpy.ops.curve.primitive_bezier_circle_add()
+	dendBev = bpy.context.active_object
+	dendBev.name = "DendBevel"
+	dendBev.scale = ((display["dendWidth"],display["dendWidth"],display["dendWidth"]))
+	dendBev.hide =True
+	dendBev.hide_render = True
+	dendBev.select = False
 
 	# Import SWC
-	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children[neuronCol.name]
 	neurons = scene["neurons"] if isinstance(scene["neurons"],list) else [scene["neurons"]]
-	#neurons = neurons[1000:len(neurons)]
 	counter = 0
 	for neuron in neurons:
 		counter = counter+1
@@ -209,16 +166,12 @@ def StageSession(sessionFolder,display):
 		axFile = os.path.join(folders["swcFolder"],'{0}_axon.swc'.format(neuron["id"]))
 		if os.path.isfile(axFile):
 			[axon,root] = IM.importSwc(axFile, axBev)
-			neuronCol.objects.link(axon)
-			bpy.context.scene.collection.objects.unlink(axon)
 			if display["sliceAxonbyArea"]:
 				axon.data.materials.append(axMatDefault)
 			else:
 				axCopy = axonMat.copy()
 				axon.data.materials.append(axCopy)
 				axCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
-		else:
-			print("Could not find axon file!\n{}".format(axFile))
 		# Make sliced axon if requested.
 		if display["sliceAxonbyArea"]:
 			print("Slicing..")
@@ -273,12 +226,9 @@ def StageSession(sessionFolder,display):
 			dendCopy.node_tree.nodes.get("RGB").outputs[0].default_value = tuple(neuron["color"]) + (1,)
 		if os.path.isfile(dendFile):
 			[dend,root] = IM.importSwc(dendFile, dendBev)
-			neuronCol.objects.link(dend)
-			bpy.context.scene.collection.objects.unlink(dend)
 			dend.data.materials.append(dendCopy)	
 		# Soma.
 		soma = IM.createSoma(root,neuron["id"],display["somaSize"])
 		soma.data.materials.append(dendCopy)
-
 		elapsedTime = time.time()-start_time
 		print("Elapsed Time: %.2f secs" % elapsedTime)
