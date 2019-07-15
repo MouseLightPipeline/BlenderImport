@@ -10,7 +10,7 @@ display = {}
 # Display Settings.
 display["brainColor"] = [1,1,1]
 display["backgroundColor"] = [0,0,0]
-display["shadeWeight"] = 0
+display["shadeWeight"] = 0.25
 display["shadeColor"] = [1,1,1]
 display["axonOpacity"] = 1
 display["axonWidth"] = 20

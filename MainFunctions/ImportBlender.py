@@ -126,7 +126,7 @@ def importSwc(filePath, bevelObj):
 		objectdata.scale=((0.001,0.001,0.001))
 		objectdata.location = ( -5.692, -6.56, 3.972 )
 		objectdata.rotation_euler = (radians(-90), 0, 0 )
-		objectdata.data.use_fill_caps = False
+		objectdata.data.use_fill_caps = True
 
 		if (2,80,0)> bpy.app.version:
 			bpy.context.scene.objects.link(objectdata)
