@@ -1,7 +1,7 @@
 function genViewerFolder(inputFile,varargin)
 %% Parse input.
 p = inputParser;
-p.addOptional('inputFile',[],@(x) ischar(x));
+p.addOptional('inputFile',[],@ischar);
 p.addParameter('OutputFolder',[],@ischar);
 p.addParameter('Resample',[],@isnumeric);
 p.addParameter('MeshFile',fullfile('//dm11/mousebrainmicro/Allen_compartments/Matlab/allenMeshCorrectedAxis.mat'),@(x) ischar(x));
