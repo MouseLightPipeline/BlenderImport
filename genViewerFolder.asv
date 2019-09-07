@@ -4,6 +4,7 @@ p = inputParser;
 p.addOptional('inputFile',[],@ischar);
 p.addParameter('OutputFolder',[],@ischar);
 p.addParameter('Resample',[],@isnumeric);
+p.addParameter('MeshFile',fullfile('//dm11/mousebrainmicro/Allen_compartments/Matlab/allenMeshCorrectedAxis.mat'),@(x) ischar(x));
 p.parse(varargin{:});
 Inputs = p.Results;
 
@@ -41,8 +42,8 @@ load(Inputs.inputFile);
 %% Get anatomy Info.
 fprintf('\nLoading Anatomy Info..');
 %Folder location
-[mainFolder,~,~] = fileparts(which('reconstructionViewer'));
-load(fullfile(mainFolder,'+allen','allenMesh.mat'));
+[mainFolder,~,~] = fileparts(mfilename('fullpath'));
+load(Inputs.MeshFile);
 
 %% get visible Neurons.
 indVis = strcmpi({Session.Neurons.Visible},'on');
@@ -112,8 +113,8 @@ for iArea = 1:length(ind)
     outputStr = [outputStr,sprintf('# parent id: %i \n', allenMesh(cArea).parent_id)];
     outputStr = [outputStr,sprintf('# hierarchy path: %s \n', allenMesh(cArea).hierarchy_path)];
     outputStr = [outputStr,sprintf('# Compartment color: 0x%s \n', allenMesh(cArea).color)];
-%     outputStr = [outputStr,sprintf('# graph order: %i \n', allenMesh(cArea).graph_order)];
-%     outputStr = [outputStr,sprintf('# atlas id: %i \n', allenMesh(cArea).atlas_id)];
+    outputStr = [outputStr,sprintf('# graph order: %i \n', allenMesh(cArea).graph_order)];
+    outputStr = [outputStr,sprintf('# atlas id: %i \n', allenMesh(cArea).atlas_id)];
     outputStr = [outputStr,sprintf('# Im fine!\n')];
     outputStr = [outputStr,sprintf('# How are you?\n')];
     outputStr = [outputStr,sprintf('# List of [x, y, z, w] geometric vertices:\n')];
