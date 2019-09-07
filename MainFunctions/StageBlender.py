@@ -227,9 +227,11 @@ def StageSession(sessionFolder,display):
 				bpy.context.view_layer.objects.active = None
 				if "acronym" in area:
 					# new mesh obj.
-					axM = axon.to_mesh()
-					axM = bpy.data.objects.new('{0}_axon_{1}'.format(neuron["id"],area["acronym"]), axM)
-					bpy.context.scene.objects.link(axM)
+					depsgraph = bpy.context.evaluated_depsgraph_get()
+					object_eval = axon.evaluated_get(depsgraph)
+					tmpMesh = bpy.data.meshes.new_from_object(object_eval)
+					axM = bpy.data.objects.new('{0}_axon_{1}'.format(neuron["id"],area["acronym"]), tmpMesh)
+					axObj = neuronCol.objects.link(axM)
 					axM.matrix_world = axon.matrix_world
 					axM.data.materials[0] = axAreas[area["acronym"]]
 					# find area
@@ -240,18 +242,20 @@ def StageSession(sessionFolder,display):
 					cBool.object = cArea[0]
 					cBool.operation = 'INTERSECT'
 					# apply boolean.
-					bpy.context.scene.objects.active = axM
+					bpy.context.view_layer.objects.active = axM
 					bpy.ops.object.modifier_apply(modifier="bool area", apply_as='DATA')
 			# Make no area axon.
-			axM = axon.to_mesh(bpy.context.scene, False, 'PREVIEW')
-			axM = bpy.data.objects.new('{0}_axon_outside'.format(neuron["id"]), axM)
-			bpy.context.scene.objects.link(axM)
-			bpy.context.scene.objects.unlink(axon)
+			depsgraph = bpy.context.evaluated_depsgraph_get()
+			object_eval = axon.evaluated_get(depsgraph)
+			tmpMesh = bpy.data.meshes.new_from_object(object_eval)
+			axM = bpy.data.objects.new('{0}_axon_outside'.format(neuron["id"]), tmpMesh)
+			neuronCol.objects.link(axM)
+			neuronCol.objects.unlink(axon)
 			axM.name = "%s_axon" % neuron["id"]
 			axM.matrix_world = axon.matrix_world
 			for area in areas:
 				bpy.ops.object.select_all(action='DESELECT')
-				bpy.context.scene.objects.active = None
+				bpy.context.view_layer.objects.active = None
 				if "acronym" in area:
 					bpy.ops.object.select_pattern(pattern="Area_%s" % area["acronym"])
 					cArea = bpy.context.selected_objects
@@ -260,7 +264,7 @@ def StageSession(sessionFolder,display):
 					cBool.operation = 'DIFFERENCE'
 			# apply difference modifiers.
 			bpy.ops.object.select_all(action='DESELECT')
-			bpy.context.scene.objects.active = axM
+			bpy.context.view_layer.objects.active = axM
 			for modifier in axM.modifiers:
 				bpy.ops.object.modifier_apply(modifier=modifier.name)
 
