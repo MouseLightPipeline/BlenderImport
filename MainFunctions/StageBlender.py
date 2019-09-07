@@ -33,6 +33,7 @@ def StageSession(sessionFolder,display):
 	# Set Cycles Render.
 	bpy.context.scene.render.engine = 'BLENDER_EEVEE'
 	bpy.context.scene.render.film_transparent = True
+	bpy.context.scene.view_settings.view_transform = 'Standard'
 
 	# Create collections
 	neuronCol = bpy.data.collections.new('Neurons')
@@ -73,7 +74,7 @@ def StageSession(sessionFolder,display):
 	anaMat.blend_method = 'BLEND'
 	axonMat.blend_method = 'BLEND'
 
-	# set group axon properties.
+	# set group display properties.
 	shadeGroup = bpy.data.node_groups ["ShadeGroup"]
 	opacityGroup = bpy.data.node_groups ["OpacityGroup"]
 	shadeGroup.nodes["ShadeWeight"].inputs[0].default_value = display["shadeWeight"]
