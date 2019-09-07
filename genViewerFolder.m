@@ -78,13 +78,14 @@ actStruct = find(Session.activeStructures);
 indAct = ismember(actStruct,ind);
 colors = cat(1,Session.structProps.FaceColor);
 colors = colors(indAct,:);
-ind = [ind;712]; %add whole brain just in case.
+rootInd = find(cellfun(@(x) strcmpi(x,'root'),{allenMesh.acronym}));
+ind = [ind;rootInd]; %add whole brain just in case.
 anatomy = struct();
 counter = 0;
 for iArea = 1:length(ind)
    fprintf('\nWriting Area %i\\%i',iArea,length(ind));
    cArea = ind(iArea);
-   if cArea~=712
+   if cArea~=rootInd
        counter = counter+1;
        anatomy(counter).acronym = allenMesh(cArea).acronym;
        anatomy(counter).color = colors(iArea,:);
