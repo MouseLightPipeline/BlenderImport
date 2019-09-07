@@ -200,7 +200,6 @@ def StageSession(sessionFolder,display):
 	# Import SWC
 	bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children[neuronCol.name]
 	neurons = scene["neurons"] if isinstance(scene["neurons"],list) else [scene["neurons"]]
-	#neurons = neurons[1000:len(neurons)]
 	counter = 0
 	for neuron in neurons:
 		counter = counter+1
@@ -225,10 +224,10 @@ def StageSession(sessionFolder,display):
 			print("Slicing..")
 			for area in areas:
 				bpy.ops.object.select_all(action='DESELECT')
-				bpy.context.scene.objects.active = None
+				bpy.context.view_layer.objects.active = None
 				if "acronym" in area:
 					# new mesh obj.
-					axM = axon.to_mesh(bpy.context.scene, False, 'PREVIEW')
+					axM = axon.to_mesh()
 					axM = bpy.data.objects.new('{0}_axon_{1}'.format(neuron["id"],area["acronym"]), axM)
 					bpy.context.scene.objects.link(axM)
 					axM.matrix_world = axon.matrix_world
